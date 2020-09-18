@@ -6,13 +6,13 @@ require 'fileutils'
 require 'json'
 require 'socket'
 require 'optparse'
-require_relative 'AppLauncher/ALBase'
-require_relative 'AppLauncher/ALTask'
-require_relative 'AppLauncher/ALSocket'
-require_relative 'AppLauncher/ALReciever'
-require_relative 'AppLauncher/ALDirectoryManager'
+require_relative 'app_launcher/al_base'
+require_relative 'app_launcher/al_task'
+require_relative 'app_launcher/al_socket'
+require_relative 'app_launcher/al_reciever'
+require_relative 'app_launcher/al_directory_manager'
 
-require_relative 'AppLauncher/ALAllTasks'
+require_relative 'app_launcher/al_all_tasks'
 
 class AppLauncher
   include ALBase

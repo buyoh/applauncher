@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'ALBase'
+require_relative 'al_base'
 
 class ALSocket
   include ALBase

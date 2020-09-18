@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'BoxDir'
+require_relative 'box_dir'
 
 class UserDir
   def initialize(dirname)

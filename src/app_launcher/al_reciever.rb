@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative 'ALBase'
-require_relative 'ALLocalStorageManager'
+require_relative 'al_base'
+require_relative 'al_local_storage_manager'
 
 class ALReciever
   include ALBase

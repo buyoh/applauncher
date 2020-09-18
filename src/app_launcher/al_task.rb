@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative '../lib/Executor'
-require_relative 'ALBase'
+require_relative '../lib/executor'
+require_relative 'al_base'
 
 module ALTask
   include ALBase

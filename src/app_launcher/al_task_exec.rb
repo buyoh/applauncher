@@ -2,8 +2,8 @@
 
 require 'tempfile'
 
-require_relative '../lib/Executor'
-require_relative 'ALTask'
+require_relative '../lib/executor'
+require_relative 'al_task'
 
 class ALTaskExec
   include ALTask

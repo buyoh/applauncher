@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'fileutils'
-require_relative '../ALBase'
-require_relative 'UserDir'
+require_relative '../al_base'
+require_relative 'user_dir'
 
 # root/[user]/[box] の2層を管理する
 # userは外部から与えられる識別子を使って管理する

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'ALLocalStorage'
+require_relative 'al_local_storage'
 
 class ALLocalStorageManager
   def initialize

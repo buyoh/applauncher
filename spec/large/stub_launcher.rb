@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require_root 'AppLauncher/ALBase'
-require_root 'AppLauncher/ALTask'
-require_root 'AppLauncher/ALSocket'
-require_root 'AppLauncher/ALReciever'
-require_root 'AppLauncher/ALDirectoryManager'
-require_root 'AppLauncher/ALAllTasks'
+require_root 'app_launcher/al_base'
+require_root 'app_launcher/al_task'
+require_root 'app_launcher/al_socket'
+require_root 'app_launcher/al_reciever'
+require_root 'app_launcher/al_directory_manager'
+require_root 'app_launcher/al_all_tasks'
 
 class StubLauncher
   include ALBase

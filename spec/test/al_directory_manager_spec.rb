@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_root 'AppLauncher/ALDirectoryManager'
+require_root 'app_launcher/al_directory_manager'
 
 RSpec.describe ALDirectoryManager do
   it 'create dirs' do

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'json'
-require_relative './StubLauncher.rb'
+require_relative './stub_launcher.rb'
 
 RSpec.describe Executor do
   it 'cpp routine' do

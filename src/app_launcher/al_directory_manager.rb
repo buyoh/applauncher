@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
-require_relative './DirectoryManager/DirectoryManager'
+require_relative './directory_manager/directory_manager'
 
 ALDirectoryManager = DirectoryManager
