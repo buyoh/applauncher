@@ -25,6 +25,7 @@ class ALTaskExec
     param.delete 'args'
     param.delete 'stdin'
     param.delete 'fileio'
+    param.delete 'timeout'
     abort 'ALTaskExec: validation failed: cmd' unless param.empty?
   end
 
@@ -40,6 +41,7 @@ class ALTaskExec
     arguments = param['args']
     stdin = param['stdin'] || ''
     fileio = param['fileio'] == true
+    timeout = param['timeout'] || 10
 
     if command.nil? || command.empty?
       report_failed reporter, 'invalid arguments'
@@ -59,7 +61,8 @@ class ALTaskExec
         cmd: command,
         args: arguments,
         stdin: in_file, stdout: out_file, stderr: err_file,
-        chdir: exec_chdir
+        chdir: exec_chdir,
+        timeout: timeout
       )
     else
       in_r, in_w = IO.pipe
@@ -71,7 +74,8 @@ class ALTaskExec
         cmd: command,
         args: arguments,
         stdin: in_r, stdout: out_w, stderr: err_w,
-        chdir: exec_chdir
+        chdir: exec_chdir,
+        timeout: timeout
       )
     end
 
