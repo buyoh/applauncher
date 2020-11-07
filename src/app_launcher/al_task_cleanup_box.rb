@@ -21,15 +21,15 @@ class ALTaskCleanupBox
 
   def action(param, reporter, local_storage)
     validate_param param, local_storage if validation_enabled?
-    sockid = local_storage[:socket_id_str]
+    user_id = local_storage[:user_id_str]
     box = param['box']
     if box.nil?
       report_failed reporter, 'param invalid'
       return nil
     end
 
-    if @directory_manager.user_exists?(sockid) && @directory_manager.box_exists?(sockid, box)
-      @directory_manager.delete_box(sockid, box)
+    if @directory_manager.user_exists?(user_id) && @directory_manager.box_exists?(user_id, box)
+      @directory_manager.delete_box(user_id, box)
     end
 
     reporter.report({ success: true })
