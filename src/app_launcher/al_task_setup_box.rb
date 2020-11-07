@@ -18,10 +18,10 @@ class ALTaskSetupBox
 
   def action(param, reporter, local_storage)
     validate_param param, local_storage if validation_enabled?
-    sockid = local_storage[:socket_id_str]
+    user_id = local_storage[:user_id_str]
 
-    @directory_manager.install_user(sockid) unless @directory_manager.user_exists?(sockid)
-    boxkey = @directory_manager.new_box(sockid)
+    @directory_manager.install_user(user_id) unless @directory_manager.user_exists?(user_id)
+    boxkey = @directory_manager.new_box(user_id)
 
     reporter.report({ success: true, result: { box: boxkey } })
     nil

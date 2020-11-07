@@ -16,7 +16,7 @@ class ALTaskExec
     param = param.clone
     param.delete 'method'
     box = param['box']
-    if box.nil? || !@directory_manager.box_exists?(local_storage[:socket_id_str], box)
+    if box.nil? || !@directory_manager.box_exists?(local_storage[:user_id_str], box)
       abort 'ALTaskExec: validation failed: box'
     end
     param.delete 'box'
@@ -32,7 +32,7 @@ class ALTaskExec
   def action(param, reporter, local_storage)
     validate_param param, local_storage if validation_enabled?
     box = param['box']
-    if box.nil? || !@directory_manager.box_exists?(local_storage[:socket_id_str], box)
+    if box.nil? || !@directory_manager.box_exists?(local_storage[:user_id_str], box)
       report_failed reporter, 'uninitialized box'
       return nil
     end
@@ -48,7 +48,7 @@ class ALTaskExec
       return nil
     end
 
-    exec_chdir = @directory_manager.get_boxdir(local_storage[:socket_id_str], box)
+    exec_chdir = @directory_manager.get_boxdir(local_storage[:user_id_str], box)
 
     if fileio
       in_file = Tempfile.open('in', exec_chdir, mode: File::Constants::RDWR)

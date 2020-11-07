@@ -24,7 +24,7 @@ class ALTaskStore
     param = param.clone
     param.delete 'method'
     box = param['box']
-    if box.nil? || !@directory_manager.box_exists?(local_storage[:socket_id_str], box)
+    if box.nil? || !@directory_manager.box_exists?(local_storage[:user_id_str], box)
       abort 'ALTaskStore: validation failed: box'
     end
     param.delete 'box'
@@ -34,7 +34,7 @@ class ALTaskStore
   def action(param, reporter, local_storage)
     validate_param param, local_storage if validation_enabled?
     box = param['box']
-    if box.nil? || !@directory_manager.box_exists?(local_storage[:socket_id_str], box)
+    if box.nil? || !@directory_manager.box_exists?(local_storage[:user_id_str], box)
       report_failed reporter, 'uninitialized box'
       return nil
     end
@@ -51,7 +51,7 @@ class ALTaskStore
       return nil
     end
 
-    ls_chdir = @directory_manager.get_boxdir(local_storage[:socket_id_str], box)
+    ls_chdir = @directory_manager.get_boxdir(local_storage[:user_id_str], box)
 
     # work
     files.each do |file|
