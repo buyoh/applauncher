@@ -19,7 +19,7 @@ RSpec.describe Executor do
       # phase -2: box configuration
       din = JSON.generate(
         { 'method' => 'setupbox',
-          'id' => { 'jid' => { 'clicmid' => 1 }, 'sid' => 'socketio', 'lcmid' => 0 } }
+          'id' => { 'request_id' => 0 } }
       )
       phase_count += 1
       w.puts din
@@ -56,9 +56,7 @@ RSpec.describe Executor do
 }
           ],
           'id' => {
-            'jid' => { 'clicmid' => 1 }, # (client)ビルド→実行のワークフローで共通　KILLも共通
-            'sid' => 'socketio', # (server)ページ単位で共通
-            'lcmid' => 1 # (server)ユーザのアクション単位で共通　KILLは別のアクションなのでlcmidは異なる
+            'request_id' => 1 # (server)ユーザのアクション単位で共通　KILLは別のアクションなのでrequest_idは異なる
           } }
       )
       phase_count += 1
@@ -74,7 +72,7 @@ RSpec.describe Executor do
           'box' => work_box_id,
           'cmd' => 'g++',
           'args' => ['-std=c++17', '-O3', '-Wall', '-o', 'prog', 'code.cpp'],
-          'id' => { 'jid' => { 'clicmid' => 1 }, 'sid' => 'socketio', 'lcmid' => 2 } }
+          'id' => { 'request_id' => 2 } }
       )
       phase_count += 1
       w.puts din
@@ -90,7 +88,7 @@ RSpec.describe Executor do
           'cmd' => './prog',
           'args' => [],
           'stdin' => "5\n3 7 4 5 2\n",
-          'id' => { 'jid' => { 'clicmid' => 1 }, 'sid' => 'socketio', 'lcmid' => 3 } }
+          'id' => { 'request_id' => 3 } }
       )
       phase_count += 1
       w.puts din
@@ -103,7 +101,7 @@ RSpec.describe Executor do
       din = JSON.generate(
         { 'method' => 'cleanupbox',
           'box' => work_box_id,
-          'id' => { 'jid' => { 'clicmid' => 1 }, 'sid' => 'socketio', 'lcmid' => 4 } }
+          'id' => { 'request_id' => 4 } }
       )
       phase_count += 1
       w.puts din
@@ -120,7 +118,7 @@ RSpec.describe Executor do
       expect(phase_count).to eq(-1)
       expect(json['success']).to eq true
       work_box_id = json['result']['box']
-      expect(json['id']).to eq({ 'jid' => { 'clicmid' => 1 }, 'sid' => 'socketio', 'lcmid' => 0 })
+      expect(json['id']).to eq({ 'request_id' => 0 })
       phase_count += 1
       r2s_queue.push phase_count
 
@@ -129,7 +127,7 @@ RSpec.describe Executor do
       json = JSON.parse(line)
       expect(phase_count).to eq 1
       expect(json['success']).to eq true
-      expect(json['id']).to eq({ 'jid' => { 'clicmid' => 1 }, 'sid' => 'socketio', 'lcmid' => 1 })
+      expect(json['id']).to eq({ 'request_id' => 1 })
       phase_count += 1
       r2s_queue.push phase_count
 
@@ -141,7 +139,7 @@ RSpec.describe Executor do
       expect(json['continue']).to eq true
       _taskid = json['taskid']
       expect(json['result']['exited']).to eq false
-      expect(json['id']).to eq({ 'jid' => { 'clicmid' => 1 }, 'sid' => 'socketio', 'lcmid' => 2 })
+      expect(json['id']).to eq({ 'request_id' => 2 })
       phase_count += 1
 
       # phase 4: notification(exited) of phase 2
@@ -153,7 +151,7 @@ RSpec.describe Executor do
       # expect(json['taskid']).to eq taskid
       expect(json['result']['exited']).to eq true
       expect(json['result']['exitstatus']).to eq 0
-      expect(json['id']).to eq({ 'jid' => { 'clicmid' => 1 }, 'sid' => 'socketio', 'lcmid' => 2 })
+      expect(json['id']).to eq({ 'request_id' => 2 })
       phase_count += 1
       r2s_queue.push phase_count
 
@@ -165,7 +163,7 @@ RSpec.describe Executor do
       expect(json['continue']).to eq true
       _taskid = json['taskid'] # 上と同じtaskidで良いのか？
       expect(json['result']['exited']).to eq false
-      expect(json['id']).to eq({ 'jid' => { 'clicmid' => 1 }, 'sid' => 'socketio', 'lcmid' => 3 })
+      expect(json['id']).to eq({ 'request_id' => 3 })
       phase_count += 1
 
       # phase 7: notification(start) of phase 5
@@ -178,7 +176,7 @@ RSpec.describe Executor do
       expect(json['result']['exited']).to eq true
       expect(json['result']['exitstatus']).to eq 0
       expect(json['result']['out']).to eq "2 3 4 5 7 \n"
-      expect(json['id']).to eq({ 'jid' => { 'clicmid' => 1 }, 'sid' => 'socketio', 'lcmid' => 3 })
+      expect(json['id']).to eq({ 'request_id' => 3 })
       phase_count += 1
       r2s_queue.push phase_count
 
