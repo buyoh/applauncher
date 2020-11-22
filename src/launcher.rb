@@ -58,7 +58,7 @@ class AppLauncher
     end
 
     trap(:INT) do
-      STDERR.puts 'SIGINT'
+      $stderr.puts 'SIGINT'
       @unix_server&.close
       exit
     end
@@ -68,7 +68,7 @@ class AppLauncher
     loop do
       case @config[:ipc]
       when :stdio
-        socket = ALSocket.new(STDIN, STDOUT)
+        socket = ALSocket.new($stdin, $stderr)
       when :unix
         unix_socket = @unix_server.accept
         socket = ALSocket.new(unix_socket, unix_socket)
@@ -77,7 +77,7 @@ class AppLauncher
       reciever = ALReciever.new(socket)
 
       reciever.handle do |json_line, reporter, local_storage|
-        # note: ノンブロッキングで書く必要がある。TaskStoreがかなり怪しいが
+        # NOTE: ノンブロッキングで書く必要がある。TaskStoreがかなり怪しいが
         # ノンブロッキングで書くか、thread + chdir禁止か。forkはメモリを簡単に共有出来ないのでNG
         case json_line['method']
         when 'setupbox'

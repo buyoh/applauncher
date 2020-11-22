@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'json'
-require_relative './stub_launcher.rb'
+require_relative './stub_launcher'
 
 RSpec.describe Executor do
   it 'cpp routine' do
     launcher = StubLauncher.new
     r2s_queue = Queue.new
-    # note: 子ThreadでRSpecのexpectは基本的に使えない
+    # NOTE: 子ThreadでRSpecのexpectは基本的に使えない
     # Thread#joinで例外を投げるthreadを待つことで、expectを有効化する
     # https://qiita.com/ledsun/items/0e1dd4ece43dc56653c7#%E5%AD%90%E3%82%B9%E3%83%AC%E3%83%83%E3%83%89%E3%81%A7expect
     phase_count = -2
@@ -37,7 +37,6 @@ RSpec.describe Executor do
               'data' => <<~'CODE_CPP_EOS'
                 #include <bits/stdc++.h>
                 using namespace std;
-                
                 int main() {
                   vector<int> vec;
                   int n; cin >> n;

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_root 'app_launcher/al_directory_manager'
+require_root 'app_launcher/al_directory_manager.rb'
 
 RSpec.describe ALDirectoryManager do
   it 'create dirs' do
@@ -18,7 +18,7 @@ RSpec.describe ALDirectoryManager do
     expect(dm.user_exists?(user1)).to eq true
     expect(dm.box_exists?(user1, user1_box1)).to eq true
     expect(dm.user_exists?(user2)).to eq false
-    expect(dm.box_exists?(user1, user1_box1 + 'xxx')).to eq false
+    expect(dm.box_exists?(user1, `#{user1_box1}xxx`)).to eq false
 
     dm.install_user user2
     user2_box1 = dm.new_box(user2)

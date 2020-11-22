@@ -13,7 +13,7 @@ class UserDir
   def new_dir
     key = (@dirname + @boxid_counter.to_s).hash.to_s(36)
     @boxid_counter += 1
-    box_dirname = '_j_' + key.hash.to_s(36) + '/'
+    box_dirname = `_j_#{key.hash.to_s(36)}/`
     @key2box[key] = BoxDir.new(box_dirname)
     key
   end

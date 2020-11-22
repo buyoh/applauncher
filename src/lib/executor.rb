@@ -26,15 +26,14 @@ class Executor
     @status = nil
   end
 
-  attr_writer :stdin
-  attr_writer :stdout
-  attr_writer :stderr
+  attr_writer :stdin, :stdout, :stderr
 
   def reset
     @status = nil
   end
 
-  def execute(noblock = false, &onfinished)
+  # NOTE: Style/OptionalBooleanParameter
+  def execute(noblock: false, &onfinished)
     @status = nil
 
     # execute command

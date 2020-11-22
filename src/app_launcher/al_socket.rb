@@ -19,7 +19,7 @@ class ALSocket
       return nil
     end
     line = @input.gets
-    vlog '>' + line.to_s
+    vlog `>#{line}`
     @mutex_input.unlock
     line
   end
@@ -27,7 +27,7 @@ class ALSocket
   def puts(str)
     s = str.to_s
     @mutex_output.synchronize do
-      vlog '<' + s
+      vlog `<#{s}`
       @output.puts s
       @output.flush
     end

@@ -7,7 +7,7 @@ module ALBase
   @@verbose = 0
   @@validate = false
   @@superuser = false
-  @@work_directory = __dir__ + '/../../tmp'
+  @@work_directory = `#{__dir__}/../../tmp`
 
   module_function
 
@@ -35,7 +35,7 @@ module ALBase
     return unless @@verbose >= 1
 
     @@mutex_stderr.synchronize do
-      STDERR.puts str
+      $stderr.puts str
     end
   end
 
@@ -43,7 +43,7 @@ module ALBase
     return unless @@verbose >= 0
 
     @@mutex_stderr.synchronize do
-      STDERR.puts str
+      $stderr.puts str
     end
   end
 end

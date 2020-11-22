@@ -26,7 +26,7 @@ class ALReciever
 
   def handle(&callback)
     while (raw_line = @socket.gets)
-      # note: dont forget "\n"
+      # NOTE: dont forget "\n"
       # note: block each line
       raw_line = raw_line.chomp
       json_line = nil

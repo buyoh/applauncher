@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require_root 'app_launcher/al_base'
-require_root 'app_launcher/al_task'
-require_root 'app_launcher/al_socket'
-require_root 'app_launcher/al_reciever'
-require_root 'app_launcher/al_directory_manager'
-require_root 'app_launcher/al_all_tasks'
+require_root 'app_launcher/al_base.rb'
+require_root 'app_launcher/al_task.rb'
+require_root 'app_launcher/al_socket.rb'
+require_root 'app_launcher/al_reciever.rb'
+require_root 'app_launcher/al_directory_manager.rb'
+require_root 'app_launcher/al_all_tasks.rb'
 
 class StubLauncher
   include ALBase
@@ -33,7 +33,7 @@ class StubLauncher
     reciever = ALReciever.new(socket)
 
     reciever.handle do |json_line, reporter, local_storage|
-      # note: ノンブロッキングで書く必要がある。TaskStoreがかなり怪しいが
+      # NOTE: ノンブロッキングで書く必要がある。TaskStoreがかなり怪しいが
       # ノンブロッキングで書くか、thread + chdir禁止か。forkはメモリを簡単に共有出来ないのでNG
       case json_line['method']
       when 'setupbox'
