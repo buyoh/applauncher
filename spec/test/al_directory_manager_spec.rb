@@ -18,7 +18,7 @@ RSpec.describe ALDirectoryManager do
     expect(dm.user_exists?(user1)).to eq true
     expect(dm.box_exists?(user1, user1_box1)).to eq true
     expect(dm.user_exists?(user2)).to eq false
-    expect(dm.box_exists?(user1, `#{user1_box1}xxx`)).to eq false
+    expect(dm.box_exists?(user1, "#{user1_box1}xxx")).to eq false
 
     dm.install_user user2
     user2_box1 = dm.new_box(user2)

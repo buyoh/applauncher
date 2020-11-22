@@ -7,7 +7,7 @@ module ALBase
   @@verbose = 0
   @@validate = false
   @@superuser = false
-  @@work_directory = `#{__dir__}/../../tmp`
+  @@work_directory = "#{__dir__}/../../tmp"
 
   module_function
 

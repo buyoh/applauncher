@@ -17,7 +17,7 @@ class DirectoryManager
   private
 
   def generate_userdirname(key)
-    `/run/_u_#{key.hash.to_s(36)}/`
+    "/run/_u_#{key.hash.to_s(36)}/"
   end
 
   public

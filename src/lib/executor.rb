@@ -33,7 +33,7 @@ class Executor
   end
 
   # NOTE: Style/OptionalBooleanParameter
-  def execute(noblock: false, &onfinished)
+  def execute(noblock = false, &onfinished)
     @status = nil
 
     # execute command
