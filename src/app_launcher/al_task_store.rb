@@ -14,8 +14,7 @@ class ALTaskStore
   def check_valid_filequery(files)
     files.none? do |file|
       path = file['path']
-      data = file['data']
-      path.nil? || data.empty? || path.start_with?('/') || path.include?('..')
+      path.nil? || path.start_with?('/') || path.include?('..')
     end
   end
   private :check_valid_filequery
