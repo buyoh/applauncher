@@ -68,7 +68,7 @@ class AppLauncher
     loop do
       case @config[:ipc]
       when :stdio
-        socket = ALSocket.new($stdin, $stderr)
+        socket = ALSocket.new($stdin, $stdout)
       when :unix
         unix_socket = @unix_server.accept
         socket = ALSocket.new(unix_socket, unix_socket)
