@@ -110,6 +110,3 @@ class AppLauncher
     end
   end
 end
-
-app = AppLauncher.new
-app.main
