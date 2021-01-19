@@ -34,7 +34,7 @@ class ALReciever
         json_line = JSON.parse(raw_line)
       rescue JSON::JSONError => e
         vlog e
-        responce({ success: false, error: 'json parse error' })
+        @socket.responce({ success: false, error: 'json parse error' })
       end
       next if json_line.nil?
 
