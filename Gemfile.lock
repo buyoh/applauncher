@@ -7,6 +7,7 @@ GEM
     parser (3.0.0.0)
       ast (~> 2.4.1)
     rainbow (3.0.0)
+    rbs (1.0.0)
     regexp_parser (2.0.3)
     rexml (3.2.4)
     rspec (3.10.0)
@@ -34,6 +35,8 @@ GEM
     rubocop-ast (1.4.0)
       parser (>= 2.7.1.5)
     ruby-progressbar (1.11.0)
+    typeprof (0.11.0)
+      rbs (>= 1.0.0)
     unicode-display_width (2.0.0)
 
 PLATFORMS
@@ -42,6 +45,7 @@ PLATFORMS
 DEPENDENCIES
   rspec (~> 3.9)
   rubocop
+  typeprof
 
 BUNDLED WITH
    2.1.4
