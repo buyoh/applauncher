@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 require_root 'app_launcher/al_directory_manager.rb'

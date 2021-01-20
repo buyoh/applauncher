@@ -1,3 +1,4 @@
+# typed: true
 # frozen_string_literal: true
 
 # 適切な権限に変更して実行する人
