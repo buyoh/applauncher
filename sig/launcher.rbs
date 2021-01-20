@@ -1,0 +1,210 @@
+# Classes
+
+module ALBase
+  @@mutex_stderr: Thread::Mutex
+  @@verbose: Integer
+  @@validate: bool
+  @@superuser: false
+  @@work_directory: String
+
+  def update_verbose: (Integer verbose) -> Integer
+                    | (Integer verbose) -> Integer
+                    | (Integer verbose) -> Integer
+  def self.update_verbose: (Integer verbose) -> Integer
+                         | (Integer verbose) -> Integer
+                         | (Integer verbose) -> Integer
+  def update_validate: (true _validate) -> true
+                     | (true _validate) -> true
+                     | (true _validate) -> true
+  def self.update_validate: (true _validate) -> true
+                          | (true _validate) -> true
+                          | (true _validate) -> true
+  def validation_enabled?: -> bool
+                         | -> bool
+                         | -> bool
+  def self.validation_enabled?: -> bool
+                              | -> bool
+                              | -> bool
+  def work_directory: -> String
+                    | -> String
+                    | -> String
+  def self.work_directory: -> String
+                         | -> String
+                         | -> String
+  def update_work_directory: (untyped path) -> untyped
+                           | (untyped path) -> untyped
+                           | (untyped path) -> untyped
+  def self.update_work_directory: (untyped path) -> untyped
+                                | (untyped path) -> untyped
+                                | (untyped path) -> untyped
+  def vlog: (String? str) -> nil
+          | (String? str) -> nil
+          | (String? str) -> nil
+  def self.vlog: (String? str) -> nil
+               | (String? str) -> nil
+               | (String? str) -> nil
+  def wlog: (String str) -> nil
+          | (String str) -> nil
+          | (String str) -> nil
+  def self.wlog: (String str) -> nil
+               | (String str) -> nil
+               | (String str) -> nil
+end
+
+class Executor
+  @cmd: untyped
+  @args: Array[bot]
+  @timeout: Integer
+  @chdir: untyped
+
+  def initialize: (untyped args) -> nil
+  attr_writer stdin: untyped
+  attr_writer stdout: untyped
+  attr_writer stderr: untyped
+  def reset: -> nil
+  def execute: (?bool noblock) ?{ (Process::Status?, nil) -> untyped } -> [Integer?, Process::Status?, nil]
+  def self.kill: (untyped pid) -> Integer
+  attr_reader status: Process::Status?
+end
+
+module ALTask
+  include ALBase
+
+  def report_failed: (ALReciever::Reporter reporter, String err) -> IO
+                   | (ALReciever::Reporter reporter, String err) -> IO
+end
+
+class ALSocket
+  include ALBase
+  @mutex_input: Thread::Mutex
+  @mutex_output: Thread::Mutex
+
+  def initialize: (IO input, IO output) -> Thread::Mutex
+  attr_reader input: IO
+  attr_reader output: IO
+  def gets: -> String?
+  def puts: (String str) -> IO
+  def responce: ({id: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, success: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, continue: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, taskid: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, result: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, error: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}} data) -> IO
+end
+
+class ALLocalStorage < Hash[String, nil]
+end
+
+class ALLocalStorageManager
+  @collection: Hash[String, nil]
+
+  def initialize: -> Hash[String, nil]
+  def []: (String key) -> nil
+  def size: -> Integer
+end
+
+class ALReciever
+  include ALBase
+  @socket: ALSocket?
+  @local_storage_manager: ALLocalStorageManager
+
+  def initialize: (ALSocket? launcher_socket) -> ALLocalStorageManager
+  def handle: ?{ (nil, Reporter, nil) -> ((IO | Integer)?) } -> nil
+
+  class Reporter
+    include ALBase
+    @socket: ALSocket?
+    @id: untyped
+
+    def initialize: (ALSocket? socket, untyped id) -> untyped
+    def report: ({success: bool, continue: true, taskid: Integer, result: {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, error: String} result) -> IO
+  end
+end
+
+class BoxDir
+  def initialize: (String dirname) -> String
+  attr_reader dirname: String
+end
+
+class UserDir
+  @key2box: Hash[String, BoxDir]
+  @boxid_counter: Integer
+
+  def initialize: (String dirname) -> Integer
+  attr_reader dirname: String
+  def new_dir: -> String
+  def get_boxdir: (String key) -> String
+  def delete_box: (untyped key) -> BoxDir?
+  def exists?: (untyped key) -> bool
+end
+
+class DirectoryManager
+  include ALBase
+  @key2userdir: Hash[untyped, UserDir]
+
+  def initialize: -> Hash[bot, bot]
+
+  private
+  def generate_userdirname: (untyped key) -> String
+
+  public
+  def install_user: (untyped user_key) -> UserDir
+  def uninstall_user: (untyped user_key) -> UserDir?
+  def new_box: (untyped user_key) -> String
+  def delete_box: (untyped user_key, untyped box_key) -> nil
+  def get_boxdir: (untyped user_key, untyped box_key) -> String?
+  def user_exists?: (untyped user_key) -> bool
+  def box_exists?: (untyped user_key, untyped box_key) -> bool
+end
+
+class ALTaskExec
+  include ALTask
+  @directory_manager: DirectoryManager
+
+  def initialize: (DirectoryManager directory_manager) -> DirectoryManager
+  def validate_param: (nil param, nil local_storage) -> nil
+  def action: (nil param, ALReciever::Reporter reporter, nil local_storage) -> Integer?
+end
+
+class ALTaskKill
+  include ALTask
+
+  def validate_param: (nil param, nil _local_storage) -> untyped
+  def action: (nil param, ALReciever::Reporter reporter, nil local_storage) -> IO?
+end
+
+class ALTaskStore
+  include ALTask
+  @directory_manager: DirectoryManager
+
+  def initialize: (DirectoryManager directory_manager) -> DirectoryManager
+
+  private
+  def check_valid_filequery: (untyped files) -> untyped
+
+  public
+  def validate_param: (nil param, nil local_storage) -> nil
+  def action: (nil param, ALReciever::Reporter reporter, nil local_storage) -> nil
+end
+
+class ALTaskSetupBox
+  include ALTask
+  @directory_manager: DirectoryManager
+
+  def initialize: (DirectoryManager directory_manager) -> DirectoryManager
+  def validate_param: (nil param, nil _local_storage) -> untyped
+  def action: (nil param, ALReciever::Reporter reporter, nil local_storage) -> nil
+end
+
+class ALTaskCleanupBox
+  include ALTask
+  @directory_manager: DirectoryManager
+
+  def initialize: (DirectoryManager directory_manager) -> DirectoryManager
+  def validate_param: (nil param, nil _local_storage) -> nil
+  def action: (nil param, ALReciever::Reporter reporter, nil local_storage) -> nil
+end
+
+class AppLauncher
+  include ALBase
+  @config: {ipc: :stdio, loop: false, sockpath: nil}
+  @unix_server: untyped # UNIXServer
+
+  def initialize: -> ((Array[(String)?] | String)?)
+  def main: -> nil
+end
