@@ -99,17 +99,17 @@ module ALBase
 end
 
 class Executor
-  @chdir: untyped
   @cmd: untyped
   @args: Array[bot]
   @timeout: Integer
+  @chdir: untyped
 
   def initialize: (untyped args) -> nil
   attr_writer stdin: untyped
   attr_writer stdout: untyped
   attr_writer stderr: untyped
   def reset: -> nil
-  def execute: (?bool noblock) { (Process::Status?, nil) -> untyped } -> [Integer?, Process::Status?, nil]
+  def execute: (?bool noblock) ?{ (Process::Status?, nil) -> untyped } -> [Integer?, Process::Status?, nil]
   def self.kill: (untyped pid) -> Integer
   attr_reader status: Process::Status?
 end
@@ -130,7 +130,7 @@ class ALSocket
   attr_reader input: IO
   attr_reader output: IO
   def gets: -> String?
-  def puts: (untyped str) -> IO
+  def puts: (String str) -> IO
   def responce: ({id: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, success: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, continue: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, taskid: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, result: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, error: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}} data) -> IO
 end
 
@@ -151,7 +151,7 @@ class ALReciever
   @local_storage_manager: ALLocalStorageManager
 
   def initialize: (ALSocket? launcher_socket) -> ALLocalStorageManager
-  def handle: { (nil, Reporter, nil) -> ((IO | Integer)?) } -> nil
+  def handle: ?{ (nil, Reporter, nil) -> ((IO | Integer)?) } -> nil
 
   class Reporter
     include ALBase
@@ -175,7 +175,7 @@ class UserDir
   def initialize: (String dirname) -> Integer
   attr_reader dirname: String
   def new_dir: -> String
-  def get_boxdir: (String key) -> String?
+  def get_boxdir: (String key) -> String
   def delete_box: (untyped key) -> BoxDir?
   def exists?: (untyped key) -> bool
 end
