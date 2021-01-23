@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_root 'app_launcher/al_directory_manager.rb'
+require_root 'app_launcher/directory_manager/directory_manager.rb'
 
-RSpec.describe ALDirectoryManager do
+RSpec.describe DirectoryManager do
   it 'create dirs' do
-    dm = ALDirectoryManager.new
+    dm = DirectoryManager.new
     user1 = 'aaaaa'
     user2 = 'aaaab'
     dm.install_user user1

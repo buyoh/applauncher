@@ -55,3 +55,7 @@ Style/ClassVars:
 
 Lint/EmptyWhen:
   Enabled: false
+
+Metrics/ParameterLists:
+  Exclude:
+    - "src/lib/executor.rb"

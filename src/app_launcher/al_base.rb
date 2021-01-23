@@ -15,8 +15,8 @@ module ALBase
     @@verbose = verbose
   end
 
-  def update_validate(_validate)
-    @@validate = true
+  def update_validate(validate)
+    @@validate = validate
   end
 
   def validation_enabled?

@@ -10,7 +10,7 @@ require_relative 'app_launcher/al_base'
 require_relative 'app_launcher/al_task'
 require_relative 'app_launcher/al_socket'
 require_relative 'app_launcher/al_reciever'
-require_relative 'app_launcher/al_directory_manager'
+require_relative 'app_launcher/directory_manager/directory_manager'
 
 require_relative 'app_launcher/al_all_tasks'
 
@@ -58,12 +58,12 @@ class AppLauncher
     end
 
     trap(:INT) do
-      $stderr.puts 'SIGINT'
+      warn 'SIGINT'
       @unix_server&.close
       exit
     end
 
-    directory_manager = ALDirectoryManager.new
+    directory_manager = DirectoryManager.new
 
     loop do
       case @config[:ipc]

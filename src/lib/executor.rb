@@ -13,15 +13,15 @@ class Executor
   # stderr: String(filepath) or IO(pipe)
   # timeout: Number
   # chdir: String
-  def initialize(args)
-    @cmd = args[:cmd]
-    @args = args[:args] || []
-    @stdin = args[:stdin] || File::NULL
-    @stdout = args[:stdout] || File::NULL
-    @stderr = args[:stderr] || File::NULL
-    @timeout = args[:timeout] || 10
-    @chdir = args[:chdir]
-    raise ArgumentError unless @cmd
+  def initialize(cmd: '', args: [], stdin: File::NULL, stdout: File::NULL, stderr: File::NULL, timeout: 10, chdir: '.')
+    @cmd = cmd
+    @args = args
+    @stdin = stdin
+    @stdout = stdout
+    @stderr = stderr
+    @timeout = timeout
+    @chdir = chdir
+    raise ArgumentError if @cmd.empty?
 
     @status = nil
   end
