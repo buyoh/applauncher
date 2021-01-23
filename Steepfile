@@ -1,13 +1,15 @@
-target :lib do
+# frozen_string_literal: true
+
+target :app do
   signature 'sig'
 
-  check 'src'                       # Directory name
-  check 'Gemfile'                   # File name
+  check 'src' # Directory name
+  # check 'Gemfile'                   # File name
   # check "app/models/**/*.rb"        # Glob
   # ignore "lib/templates/*.rb"
 
-  # library 'fileutils',
-  library 'json'
+  # library 'FileUtils'
+  # library 'json'
   # library 'socket'
   # library 'optparse'
   # library 'tempfile'

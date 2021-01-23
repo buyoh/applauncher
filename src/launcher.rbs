@@ -60,12 +60,12 @@ module ALBase
   def self.update_verbose: (Integer verbose) -> Integer
                          | (Integer verbose) -> Integer
                          | (Integer verbose) -> Integer
-  def update_validate: (true _validate) -> true
-                     | (true _validate) -> true
-                     | (true _validate) -> true
-  def self.update_validate: (true _validate) -> true
-                          | (true _validate) -> true
-                          | (true _validate) -> true
+  def update_validate: (true validate) -> true
+                     | (true validate) -> true
+                     | (true validate) -> true
+  def self.update_validate: (true validate) -> true
+                          | (true validate) -> true
+                          | (true validate) -> true
   def validation_enabled?: -> bool
                          | -> bool
                          | -> bool
@@ -99,15 +99,15 @@ module ALBase
 end
 
 class Executor
-  @cmd: untyped
+  @cmd: String
   @args: Array[bot]
   @timeout: Integer
-  @chdir: untyped
+  @chdir: String?
 
-  def initialize: (untyped args) -> nil
-  attr_writer stdin: untyped
-  attr_writer stdout: untyped
-  attr_writer stderr: untyped
+  def initialize: (?cmd: String, ?args: Array[bot], ?stdin: Tempfile, ?stdout: Tempfile, ?stderr: Tempfile, ?timeout: Integer, ?chdir: String?) -> nil
+  attr_writer stdin: Tempfile
+  attr_writer stdout: Tempfile
+  attr_writer stderr: Tempfile
   def reset: -> nil
   def execute: (?bool noblock) ?{ (Process::Status?, nil) -> untyped } -> [Integer?, Process::Status?, nil]
   def self.kill: (untyped pid) -> Integer
