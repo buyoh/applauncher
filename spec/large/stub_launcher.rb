@@ -5,7 +5,7 @@ require_root 'app_launcher/al_task.rb'
 require_root 'app_launcher/al_socket.rb'
 require_root 'app_launcher/al_reciever.rb'
 require_root 'app_launcher/directory_manager/directory_manager.rb'
-require_root 'app_launcher/al_all_tasks.rb'
+require_root 'app_launcher/al_task_factory.rb'
 
 class StubLauncher
   include ALBase
@@ -35,22 +35,9 @@ class StubLauncher
     reciever.handle do |json_line, reporter, local_storage|
       # NOTE: ノンブロッキングで書く必要がある。TaskStoreがかなり怪しいが
       # ノンブロッキングで書くか、thread + chdir禁止か。forkはメモリを簡単に共有出来ないのでNG
-      case json_line['method']
-      when 'setupbox'
-        task = ALTaskSetupBox.new directory_manager
-        task.action(json_line, reporter, local_storage)
-      when 'cleanupbox'
-        task = ALTaskCleanupBox.new directory_manager
-        task.action(json_line, reporter, local_storage)
-      when 'store'
-        task = ALTaskStore.new directory_manager
-        task.action(json_line, reporter, local_storage)
-      when 'exec'
-        task = ALTaskExec.new directory_manager
-        task.action(json_line, reporter, local_storage)
-      when 'kill'
-        task = ALTaskKill.new
-        task.action(json_line, reporter, local_storage)
+      task = ALTaskFactory.from_json json_line
+      if task
+        task.action(reporter, local_storage, directory_manager)
       else
         reporter.report({ success: false, error: 'unknown method' })
       end
