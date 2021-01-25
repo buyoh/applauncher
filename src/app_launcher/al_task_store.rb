@@ -4,59 +4,48 @@ require 'fileutils'
 require_relative '../lib/executor'
 require_relative 'al_task'
 
-class ALTaskStore
+ALTaskStore = Struct.new('ALTaskStore', :box, :files) do
   include ALTask
 
-  def initialize(directory_manager)
-    @directory_manager = directory_manager
-  end
+  FileData = Struct.new('FileData', :path, :data) do # rubocop:disable Lint/ConstantDefinitionInBlock:
+    def self.check_valid_filequery(path)
+      !path.nil? && !path.start_with?('/') && !path.include?('..')
+    end
 
-  def check_valid_filequery(files)
-    files.none? do |file|
-      path = file['path']
-      path.nil? || path.start_with?('/') || path.include?('..')
+    def self.from_json(param)
+      path = param['path']
+      data = param['data']
+      return nil unless (path.is_a? String) && !path.empty?
+      return nil unless data.is_a? String
+      return nil unless check_valid_filequery(path)
+
+      new(path, data)
     end
   end
-  private :check_valid_filequery
 
-  def validate_param(param, local_storage)
-    param = param.clone
-    param.delete 'method'
+  def self.from_json(param)
     box = param['box']
-    if box.nil? || !@directory_manager.box_exists?(local_storage[:user_id_str], box)
-      abort 'ALTaskStore: validation failed: box'
-    end
-    param.delete 'box'
-    abort 'ALTaskStore: validation failed: files' if param['files'].nil?
+    files = param['files']
+    return nil unless box.is_a? String
+    return nil unless files.is_a? Array
+
+    files = files.map { |f| FileData.from_json(f) }
+    return nil unless files.all?
+
+    new(box, files)
   end
 
-  def action(param, reporter, local_storage)
-    validate_param param, local_storage if validation_enabled?
-    box = param['box']
-    if box.nil? || !@directory_manager.box_exists?(local_storage[:user_id_str], box)
+  def action(reporter, local_storage, directory_manager)
+    unless directory_manager.box_exists?(local_storage[:user_id_str], box)
       report_failed reporter, 'uninitialized box'
       return nil
     end
 
-    files = param['files']
-    if files.nil? || !files.is_a?(Array)
-      report_failed reporter, 'invalid arguments'
-      return nil
-    end
-
-    # check param
-    unless check_valid_filequery(files)
-      report_failed reporter, 'invalid files'
-      return nil
-    end
-
-    ls_chdir = @directory_manager.get_boxdir(local_storage[:user_id_str], box)
+    ls_chdir = directory_manager.get_boxdir(local_storage[:user_id_str], box)
 
     # work
     files.each do |file|
-      path = file['path']
-      data = file['data']
-      IO.write(ls_chdir + path, data)
+      IO.write(ls_chdir + file.path, file.data)
     end
     reporter.report({ success: true })
     nil

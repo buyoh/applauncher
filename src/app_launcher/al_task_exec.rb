@@ -5,50 +5,38 @@ require 'tempfile'
 require_relative '../lib/executor'
 require_relative 'al_task'
 
-class ALTaskExec
+ALTaskExec = Struct.new('ALTaskExec', :box, :command, :arguments, :stdin, :fileio, :timeout) do
   include ALTask
 
-  def initialize(directory_manager)
-    @directory_manager = directory_manager
+  def self.from_json(param)
+    box = param['box']
+    cmd = param['cmd']
+    args = param['args'] || []
+    stdin = param['stdin'] || ''
+    fileio = param['fileio'] || false
+    timeout = param['timeout'] || 10
+    return nil unless (box.is_a? String) && !box.empty?
+    return nil unless (cmd.is_a? String) && !cmd.empty?
+    return nil unless args.is_a? Array
+    return nil unless stdin.is_a? String
+    return nil unless [true, false].include?(fileio)
+    return nil unless timeout.is_a? Integer # TODO: assert range
+
+    new(box, cmd, args, stdin, fileio, timeout)
   end
 
-  def validate_param(param, local_storage)
-    param = param.clone
-    param.delete 'method'
-    box = param['box']
-    if box.nil? || !@directory_manager.box_exists?(local_storage[:user_id_str], box)
-      abort 'ALTaskExec: validation failed: box'
-    end
-    param.delete 'box'
-    abort 'ALTaskExec: validation failed: cmd' if !param['cmd'] || param['cmd'].empty?
-    param.delete 'cmd'
-    param.delete 'args'
-    param.delete 'stdin'
-    param.delete 'fileio'
-    param.delete 'timeout'
-    abort 'ALTaskExec: validation failed: cmd' unless param.empty?
-  end
-
-  def action(param, reporter, local_storage)
-    validate_param param, local_storage if validation_enabled?
-    box = param['box']
-    if box.nil? || !@directory_manager.box_exists?(local_storage[:user_id_str], box)
+  def action(reporter, local_storage, directory_manager)
+    if box.nil? || !directory_manager.box_exists?(local_storage[:user_id_str], box)
       report_failed reporter, 'uninitialized box'
       return nil
     end
-
-    command = param['cmd']
-    arguments = param['args']
-    stdin = param['stdin'] || ''
-    fileio = param['fileio'] == true
-    timeout = param['timeout'] || 10
 
     if command.nil? || command.empty?
       report_failed reporter, 'invalid arguments'
       return nil
     end
 
-    exec_chdir = @directory_manager.get_boxdir(local_storage[:user_id_str], box)
+    exec_chdir = directory_manager.get_boxdir(local_storage[:user_id_str], box)
 
     if fileio
       in_file = Tempfile.open('in', exec_chdir, mode: File::Constants::RDWR)

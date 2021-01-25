@@ -1,4 +1,13 @@
 # Classes
+class Object
+  private
+  def action: (untyped reporter, untyped local_storage, untyped _directory_manager) -> nil
+            | (untyped reporter, untyped local_storage, untyped directory_manager) -> Integer?
+            | (untyped reporter, untyped local_storage, untyped directory_manager) -> nil
+            | (untyped reporter, untyped local_storage, untyped directory_manager) -> nil
+            | (untyped reporter, untyped local_storage, untyped directory_manager) -> nil
+end
+
 module FileUtils
   alias getwd pwd
   alias self.getwd self.pwd
@@ -102,9 +111,9 @@ class Executor
   @cmd: String
   @args: Array[bot]
   @timeout: Integer
-  @chdir: String?
+  @chdir: String
 
-  def initialize: (?cmd: String, ?args: Array[bot], ?stdin: Tempfile, ?stdout: Tempfile, ?stderr: Tempfile, ?timeout: Integer, ?chdir: String?) -> nil
+  def initialize: (?cmd: String, ?args: Array[bot], ?stdin: Tempfile, ?stdout: Tempfile, ?stderr: Tempfile, ?timeout: Integer, ?chdir: String) -> nil
   attr_writer stdin: Tempfile
   attr_writer stdout: Tempfile
   attr_writer stderr: Tempfile
@@ -117,8 +126,8 @@ end
 module ALTask
   include ALBase
 
-  def report_failed: (ALReciever::Reporter reporter, String err) -> IO
-                   | (ALReciever::Reporter reporter, String err) -> IO
+  def report_failed: (untyped reporter, untyped err) -> untyped
+                   | (untyped reporter, untyped err) -> untyped
 end
 
 class ALSocket
@@ -131,7 +140,7 @@ class ALSocket
   attr_reader output: IO
   def gets: -> String?
   def puts: (String str) -> IO
-  def responce: ({id: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, success: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, continue: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, taskid: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, result: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, error: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}} data) -> IO
+  def responce: ({id: String | false, success: String | false, error: String | false} data) -> IO
 end
 
 class ALLocalStorage < Hash
@@ -151,7 +160,7 @@ class ALReciever
   @local_storage_manager: ALLocalStorageManager
 
   def initialize: (ALSocket? launcher_socket) -> ALLocalStorageManager
-  def handle: ?{ (nil, Reporter, nil) -> ((IO | Integer)?) } -> nil
+  def handle: ?{ (nil, Reporter, nil) -> IO } -> nil
 
   class Reporter
     include ALBase
@@ -159,7 +168,7 @@ class ALReciever
     @id: untyped
 
     def initialize: (ALSocket? socket, untyped id) -> untyped
-    def report: ({success: bool, continue: true, taskid: Integer, result: {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, error: String} result) -> IO
+    def report: ({success: false, error: String} result) -> IO
   end
 end
 
@@ -209,52 +218,32 @@ class Tempfile
   alias length size
 end
 
-class ALTaskExec
-  include ALTask
-  @directory_manager: DirectoryManager
-
-  def initialize: (DirectoryManager directory_manager) -> DirectoryManager
-  def validate_param: (nil param, nil local_storage) -> nil
-  def action: (nil param, ALReciever::Reporter reporter, nil local_storage) -> Integer?
+class ALTaskExec < Struct
+  attr_accessor box(): untyped
+  attr_accessor command(): untyped
+  attr_accessor arguments(): untyped
+  attr_accessor stdin(): untyped
+  attr_accessor fileio(): untyped
+  attr_accessor timeout(): untyped
 end
 
-class ALTaskKill
-  include ALTask
-
-  def validate_param: (nil param, nil _local_storage) -> untyped
-  def action: (nil param, ALReciever::Reporter reporter, nil local_storage) -> IO?
+class ALTaskKill < Struct
 end
 
-class ALTaskStore
-  include ALTask
-  @directory_manager: DirectoryManager
-
-  def initialize: (DirectoryManager directory_manager) -> DirectoryManager
-
-  private
-  def check_valid_filequery: (untyped files) -> untyped
-
-  public
-  def validate_param: (nil param, nil local_storage) -> nil
-  def action: (nil param, ALReciever::Reporter reporter, nil local_storage) -> nil
+class ALTaskStore < Struct
+  attr_accessor box(): untyped
+  attr_accessor files(): untyped
 end
 
-class ALTaskSetupBox
-  include ALTask
-  @directory_manager: DirectoryManager
-
-  def initialize: (DirectoryManager directory_manager) -> DirectoryManager
-  def validate_param: (nil param, nil _local_storage) -> untyped
-  def action: (nil param, ALReciever::Reporter reporter, nil local_storage) -> nil
+class ALTaskSetupBox < Struct
 end
 
-class ALTaskCleanupBox
-  include ALTask
-  @directory_manager: DirectoryManager
+class ALTaskCleanupBox < Struct
+  attr_accessor box(): untyped
+end
 
-  def initialize: (DirectoryManager directory_manager) -> DirectoryManager
-  def validate_param: (nil param, nil _local_storage) -> nil
-  def action: (nil param, ALReciever::Reporter reporter, nil local_storage) -> nil
+module ALTaskFactory
+  def self.from_json: (nil param) -> nil
 end
 
 class AppLauncher
@@ -272,4 +261,9 @@ module Shellwords
   alias self.split self.shellsplit
   alias self.escape self.shellescape
   alias self.join self.shelljoin
+end
+
+class FileData < Struct
+  attr_accessor path(): untyped
+  attr_accessor data(): untyped
 end

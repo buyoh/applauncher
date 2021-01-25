@@ -4,24 +4,18 @@ require 'fileutils'
 require_relative '../lib/executor'
 require_relative 'al_task'
 
-class ALTaskSetupBox
+ALTaskSetupBox = Struct.new('ALTaskSetupBox') do
   include ALTask
 
-  def initialize(directory_manager)
-    @directory_manager = directory_manager
+  def self.from_json(_param)
+    new
   end
 
-  def validate_param(param, _local_storage)
-    param = param.clone
-    param.delete 'method'
-  end
-
-  def action(param, reporter, local_storage)
-    validate_param param, local_storage if validation_enabled?
+  def action(reporter, local_storage, directory_manager)
     user_id = local_storage[:user_id_str]
 
-    @directory_manager.install_user(user_id) unless @directory_manager.user_exists?(user_id)
-    boxkey = @directory_manager.new_box(user_id)
+    directory_manager.install_user(user_id) unless directory_manager.user_exists?(user_id)
+    boxkey = directory_manager.new_box(user_id)
 
     reporter.report({ success: true, result: { box: boxkey } })
     nil

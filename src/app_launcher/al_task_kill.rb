@@ -3,16 +3,14 @@
 require_relative '../lib/executor'
 require_relative 'al_task'
 
-class ALTaskKill
+ALTaskKill = Struct.new('ALTaskKill') do
   include ALTask
 
-  def validate_param(param, _local_storage)
-    param = param.clone
-    param.delete 'method'
+  def self.from_json(_param)
+    new
   end
 
-  def action(param, reporter, local_storage)
-    validate_param param, local_storage if validation_enabled?
+  def action(reporter, local_storage, _directory_manager)
     if !local_storage.key?(:pid) || local_storage[:pid].nil?
       vlog 'do_kill: no action'
       reporter.report({ success: true, continue: true, result: { accepted: false } })
