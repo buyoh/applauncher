@@ -27,6 +27,7 @@ class UserDir
 
   def delete_box(key)
     @key2box.delete key
+    nil
   end
 
   def exists?(key)

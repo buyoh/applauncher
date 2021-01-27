@@ -4,7 +4,7 @@ require 'fileutils'
 require_relative '../lib/executor'
 require_relative 'al_task'
 
-ALTaskSetupBox = Struct.new('ALTaskSetupBox') do
+class ALTaskSetupBox
   include ALTask
 
   def self.from_json(_param)

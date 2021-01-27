@@ -1,7 +1,12 @@
 # Classes
 
-type jhash = Hash[String, Integer | String | bool | nil | jhash]
+type jhash = Hash[String, Integer | String | bool | nil | jhash | Array[jhash]]
+type symhash = Hash[Symbol | String, Integer | String | bool | nil | symhash | Array[symhash]]
 # type jhash = Hash[String, String]
+
+class IO
+  def self.pipe: () -> [IO, IO]
+end
 
 module ALBase
   @@mutex_stderr: Thread::Mutex
@@ -29,15 +34,19 @@ end
 class Executor
   @cmd: String
   @args: Array[bot]
+  @stdin: String | IO
+  @stdout: String | IO
+  @stderr: String | IO
   @timeout: Integer
-  @chdir: String?
+  @chdir: String
+  @status: Process::Status?
 
-  def initialize: (?cmd: String, ?args: Array[bot], ?stdin: String | IO, ?stdout: String | IO, ?stderr: String | IO, ?timeout: Integer, ?chdir: String?) -> nil
   attr_writer stdin: String | IO
   attr_writer stdout: String | IO
   attr_writer stderr: String | IO
+  def initialize: (cmd: String, ?args: Array[String], ?stdin: String | IO, ?stdout: String | IO, ?stderr: String | IO, ?timeout: Numeric, ?chdir: String) -> untyped
   def reset: -> nil
-  def execute: (?bool noblock) ?{ (Process::Status?, nil) -> untyped } -> [Integer?, Process::Status?, nil]
+  def execute: (?bool noblock) ?{ (Process::Status?, Numeric?) -> untyped } -> [Integer?, Process::Status?, Numeric?]
   def self.kill: (untyped pid) -> Integer
   attr_reader status: Process::Status?
 end
@@ -53,21 +62,21 @@ class ALSocket
   @mutex_input: Thread::Mutex
   @mutex_output: Thread::Mutex
 
-  def initialize: (IO input, IO output) -> Thread::Mutex
   attr_reader input: IO
   attr_reader output: IO
+  def initialize: (IO input, IO output) -> untyped
   def gets: -> String?
-  def puts: (String str) -> IO
-  def responce: ({id: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, success: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, continue: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, taskid: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, result: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, error: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}} data) -> IO
+  def puts: (String str) -> nil
+  def responce: (symhash data) -> nil
 end
 
-class ALLocalStorage < Hash[Symbol, Object]
+class ALLocalStorage < Hash[Symbol, String]
 end
 
 class ALLocalStorageManager
   @collection: Hash[String, ALLocalStorage]
 
-  def initialize: -> Hash[String, ALLocalStorage]
+  def initialize: () -> untyped
   def []: (String key) -> ALLocalStorage
   def size: -> Integer
 end
@@ -77,101 +86,115 @@ class ALReciever
   @socket: ALSocket
   @local_storage_manager: ALLocalStorageManager
 
-  def initialize: (ALSocket launcher_socket) -> ALLocalStorageManager
-  def handle: ?{ (nil, Reporter, nil) -> ((IO | Integer)?) } -> nil
+  def initialize: (ALSocket launcher_socket) -> untyped
+  def handle: ?{ (jhash, Reporter, ALLocalStorage) -> nil } -> nil
 
   class Reporter
     include ALBase
     @socket: ALSocket
-    @id: untyped
+    @id: String
 
-    def initialize: (ALSocket socket, untyped id) -> untyped
-    def report: (Hash[Symbol, String | Integer | Float | bool | nil] result) -> IO
+    def initialize: (ALSocket socket, String id) -> untyped
+    def report: (symhash result) -> IO
   end
 end
 
 class BoxDir
-  def initialize: (String dirname) -> String
   attr_reader dirname: String
+  def initialize: (String dirname) -> untyped
 end
 
 class UserDir
   @key2box: Hash[String, BoxDir]
   @boxid_counter: Integer
 
-  def initialize: (String dirname) -> Integer
   attr_reader dirname: String
+  def initialize: (String dirname) -> untyped
   def new_dir: -> String
   def get_boxdir: (String key) -> String
-  def delete_box: (untyped key) -> BoxDir?
-  def exists?: (untyped key) -> bool
+  def delete_box: (String key) -> nil
+  def exists?: (String key) -> bool
 end
 
 class DirectoryManager
   include ALBase
-  @key2userdir: Hash[untyped, UserDir]
-
-  def initialize: -> Hash[bot, bot]
+  @key2userdir: Hash[String, UserDir]
 
   private
-  def generate_userdirname: (untyped key) -> String
+  def generate_userdirname: (String key) -> String
 
   public
-  def install_user: (untyped user_key) -> UserDir
-  def uninstall_user: (untyped user_key) -> UserDir?
-  def new_box: (untyped user_key) -> String
-  def delete_box: (untyped user_key, untyped box_key) -> nil
-  def get_boxdir: (untyped user_key, untyped box_key) -> String?
-  def user_exists?: (untyped user_key) -> bool
-  def box_exists?: (untyped user_key, untyped box_key) -> bool
+  def initialize: () -> untyped
+  def install_user: (String user_key) -> UserDir
+  def uninstall_user: (String user_key) -> nil
+  def new_box: (String user_key) -> String?
+  def delete_box: (String user_key, String box_key) -> nil
+  def get_boxdir: (String user_key, String box_key) -> String?
+  def user_exists?: (String user_key) -> bool
+  def box_exists?: (String user_key, String box_key) -> bool
+end
+
+
+interface _ALTaskInterface[Self]
+  # def self.from_json: (jhash param) -> Self?
+
+  def action: (ALReciever::Reporter reporter, ALLocalStorage local_storage, DirectoryManager directory_manager) -> nil
 end
 
 class ALTaskExec
+  include _ALTaskInterface[ALTaskExec]
   include ALTask
-  @directory_manager: DirectoryManager
-
-  def initialize: (DirectoryManager directory_manager) -> DirectoryManager
-  def validate_param: (jhash param, ALLocalStorage local_storage) -> untyped
-  def action: (jhash param, ALReciever::Reporter reporter, nil local_storage) -> Integer?
+  @box: String
+  @command: String
+  @arguments: Array[String]
+  @stdin: String | IO
+  @fileio: bool
+  @timeout: Numeric
+  def self.from_json: (jhash param) -> ALTaskExec?
+  def initialize: (String box, String command, Array[String] arguments, String | IO stdin, bool fileio, Numeric timeout) -> untyped
 end
 
 class ALTaskKill
+  include _ALTaskInterface[ALTaskKill]
   include ALTask
-
-  def validate_param: (jhash param, ALLocalStorage _local_storage) -> untyped
-  def action: (jhash param, ALReciever::Reporter reporter, ALLocalStorage local_storage) -> IO?
+  def self.from_json: (jhash param) -> ALTaskKill?
+  def initialize: () -> untyped
 end
 
 class ALTaskStore
+  include _ALTaskInterface[ALTaskStore]
   include ALTask
-  @directory_manager: DirectoryManager
+  @box: String
+  @files: Array[FileData]
+  def self.from_json: (jhash param) -> ALTaskStore?
+  def self.new: (String box, Array[FileData] files) -> ALTaskStore
+  def initialize: (String box, Array[FileData] files) -> untyped
 
-  def initialize: (DirectoryManager directory_manager) -> DirectoryManager
-
-  private
-  def check_valid_filequery: (untyped files) -> untyped
-
-  public
-  def validate_param: (jhash param, ALLocalStorage local_storage) -> untyped
-  def action: (jhash param, ALReciever::Reporter reporter, ALLocalStorage local_storage) -> nil
+  class FileData
+    attr_accessor path: String
+    attr_accessor data: String
+    def self.check_valid_filequery: (String path) -> bool
+    def self.from_json: (jhash param) -> FileData?
+    def self.new: (String path, String data) -> FileData
+    def initialize: (String path, String data) -> untyped
+  end
 end
 
 class ALTaskSetupBox
+  include _ALTaskInterface[ALTaskSetupBox]
   include ALTask
-  @directory_manager: DirectoryManager
-
-  def initialize: (DirectoryManager directory_manager) -> DirectoryManager
-  def validate_param: (jhash param, ALLocalStorage _local_storage) -> untyped
-  def action: (jhash param, ALReciever::Reporter reporter, ALLocalStorage local_storage) -> nil
+  def self.from_json: (jhash param) -> ALTaskSetupBox?
+  def self.new: () -> ALTaskSetupBox
+  def initialize: () -> untyped
 end
 
 class ALTaskCleanupBox
+  include _ALTaskInterface[ALTaskCleanupBox]
   include ALTask
-  @directory_manager: DirectoryManager
-
-  def initialize: (DirectoryManager directory_manager) -> DirectoryManager
-  def validate_param: (jhash param, ALLocalStorage _local_storage) -> untyped
-  def action: (jhash param, ALReciever::Reporter reporter, ALLocalStorage local_storage) -> nil
+  @box: String
+  def self.from_json: (jhash param) -> ALTaskCleanupBox?
+  def self.new: (String box) -> ALTaskCleanupBox
+  def initialize: (String box) -> untyped
 end
 
 class AppLauncher
@@ -179,6 +202,5 @@ class AppLauncher
   @config: {ipc: :stdio, loop: bool, sockpath: nil}
   @unix_server: untyped # UNIXServer
 
-  def initialize: -> ((Array[(String)?] | String)?)
   def main: -> nil
 end

@@ -3,7 +3,7 @@
 require_relative '../lib/executor'
 require_relative 'al_task'
 
-ALTaskKill = Struct.new('ALTaskKill') do
+class ALTaskKill
   include ALTask
 
   def self.from_json(_param)

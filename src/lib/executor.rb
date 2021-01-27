@@ -26,7 +26,7 @@ class Executor
     @status = nil
   end
 
-  attr_writer :stdin, :stdout, :stderr
+  attr_writer :stdin, :stdout, :stderr # TODO: unnecessary?
 
   def reset
     @status = nil

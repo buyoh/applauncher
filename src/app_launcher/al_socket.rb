@@ -31,6 +31,7 @@ class ALSocket
       @output.puts s
       @output.flush
     end
+    nil
   end
 
   def responce(data)

@@ -21,6 +21,7 @@ class ALReciever
 
     def report(result)
       @socket.responce result.merge({ id: @id })
+      nil
     end
   end
 

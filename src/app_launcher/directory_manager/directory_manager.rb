@@ -34,6 +34,7 @@ class DirectoryManager
 
     FileUtils.rm_rf work_directory + dir
     @key2userdir.delete user_key
+    nil
   end
 
   def new_box(user_key)

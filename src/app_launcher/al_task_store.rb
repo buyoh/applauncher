@@ -4,10 +4,15 @@ require 'fileutils'
 require_relative '../lib/executor'
 require_relative 'al_task'
 
-ALTaskStore = Struct.new('ALTaskStore', :box, :files) do
+class ALTaskStore
   include ALTask
 
-  FileData = Struct.new('FileData', :path, :data) do # rubocop:disable Lint/ConstantDefinitionInBlock:
+  def initialize(box, files)
+    @box = box
+    @files = files
+  end
+
+  FileData = Struct.new('FileData', :path, :data) do
     def self.check_valid_filequery(path)
       !path.nil? && !path.start_with?('/') && !path.include?('..')
     end
@@ -17,9 +22,9 @@ ALTaskStore = Struct.new('ALTaskStore', :box, :files) do
       data = param['data']
       return nil unless (path.is_a? String) && !path.empty?
       return nil unless data.is_a? String
-      return nil unless check_valid_filequery(path)
+      return nil unless FileData.check_valid_filequery(path)
 
-      new(path, data)
+      FileData.new(path, data)
     end
   end
 
@@ -30,21 +35,21 @@ ALTaskStore = Struct.new('ALTaskStore', :box, :files) do
     return nil unless files.is_a? Array
 
     files = files.map { |f| FileData.from_json(f) }
-    return nil unless files.all?
+    return nil unless !files.nil? && files.all?
 
     new(box, files)
   end
 
   def action(reporter, local_storage, directory_manager)
-    unless directory_manager.box_exists?(local_storage[:user_id_str], box)
+    unless directory_manager.box_exists?(local_storage[:user_id_str], @box)
       report_failed reporter, 'uninitialized box'
       return nil
     end
 
-    ls_chdir = directory_manager.get_boxdir(local_storage[:user_id_str], box)
+    ls_chdir = directory_manager.get_boxdir(local_storage[:user_id_str], @box)
 
     # work
-    files.each do |file|
+    @files.each do |file|
       IO.write(ls_chdir + file.path, file.data)
     end
     reporter.report({ success: true })

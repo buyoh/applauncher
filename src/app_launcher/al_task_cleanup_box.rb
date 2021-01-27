@@ -4,8 +4,12 @@ require 'fileutils'
 require_relative '../lib/executor'
 require_relative 'al_task'
 
-ALTaskCleanupBox = Struct.new('ALTaskCleanupBox', :box) do
+class ALTaskCleanupBox
   include ALTask
+
+  def initialize(box)
+    @box = box
+  end
 
   def self.from_json(param)
     box = param['box']
@@ -25,13 +29,13 @@ ALTaskCleanupBox = Struct.new('ALTaskCleanupBox', :box) do
   def action(reporter, local_storage, directory_manager)
     # validate_param param, local_storage if validation_enabled?s
     user_id = local_storage[:user_id_str]
-    if box.nil?
+    if @box.nil?
       report_failed reporter, 'param invalid'
       return nil
     end
 
-    if directory_manager.user_exists?(user_id) && directory_manager.box_exists?(user_id, box)
-      directory_manager.delete_box(user_id, box)
+    if directory_manager.user_exists?(user_id) && directory_manager.box_exists?(user_id, @box)
+      directory_manager.delete_box(user_id, @box)
     end
 
     reporter.report({ success: true })

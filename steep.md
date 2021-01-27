@@ -13,6 +13,22 @@
     - `Struct` を使う
 - リファクタリングが必要なため今の所 workflow には入れない
 
+```
+t1 = nil
+t2 = nil
+t1 = Thread.start do
+  sleep 3
+  t2.exit
+  puts 't1'
+end
+t2 = Thread.start do
+  sleep 5
+  t1.exit
+  puts 't2'
+end
+[t1,t2].each(&:join)
+```
+
 ## 理想
 
 - rb ファイルに型注釈を書きたくない
