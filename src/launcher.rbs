@@ -82,7 +82,7 @@ class ALSocket
   attr_reader output: IO
   def gets: -> String?
   def puts: (String str) -> nil
-  def responce: ({id: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, success: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, continue: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, taskid: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, result: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, error: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}} data) -> nil
+  def responce: ({id: String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, success: String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, continue: String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, taskid: String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, result: String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, error: String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}} data) -> nil
 end
 
 class ALLocalStorage < Hash
@@ -110,7 +110,7 @@ class ALReciever
     @id: untyped
 
     def initialize: (ALSocket? socket, untyped id) -> untyped
-    def report: ({success: bool, continue: true, taskid: Integer, result: {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, error: String} result) -> nil
+    def report: ({success: bool, continue: true, taskid: String, result: {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, error: String} result) -> nil
   end
 end
 
@@ -166,7 +166,7 @@ class Executor
   attr_writer stdout: Tempfile
   attr_writer stderr: Tempfile
   def reset: -> nil
-  def execute: (?bool noblock) ?{ (Process::Status?, nil) -> untyped } -> [Integer?, Process::Status?, nil]
+  def execute: (?bool noblock) ?{ (Process::Status?, nil) -> nil } -> [Integer?, Process::Status?, nil]
   def self.kill: (untyped pid) -> Integer
   attr_reader status: Process::Status?
 end
@@ -187,8 +187,10 @@ end
 
 class ALTaskKill
   include ALTask
+  @exec_task_id: untyped
 
-  def self.from_json: (nil _param) -> ALTaskKill
+  def initialize: (untyped exec_task_id) -> untyped
+  def self.from_json: (nil param) -> ALTaskKill?
   def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager _directory_manager) -> nil
 end
 

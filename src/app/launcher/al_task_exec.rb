@@ -5,7 +5,8 @@ require 'tempfile'
 require_relative '../../lib/executor'
 require_relative 'al_task'
 
-class ALTaskExec
+# TODO: resolve code length
+class ALTaskExec # rubocop:disable Metrics/ClassLength
   include ALTask
 
   def initialize(box, command, arguments, stdin, fileio, timeout) # rubocop:disable Metrics/ParameterLists
@@ -35,7 +36,8 @@ class ALTaskExec
   end
 
   def action(reporter, local_storage, directory_manager)
-    if @box.nil? || !directory_manager.box_exists?(local_storage[:user_id_str], @box)
+    user_id = local_storage[:user_id_str]
+    if @box.nil? || !directory_manager.box_exists?(user_id, @box)
       report_failed reporter, 'uninitialized box'
       return nil
     end
@@ -45,8 +47,9 @@ class ALTaskExec
       return nil
     end
 
-    exec_chdir = directory_manager.get_boxdir(local_storage[:user_id_str], @box)
+    exec_chdir = directory_manager.get_boxdir(user_id, @box)
 
+    # TODO: split another classes
     if @fileio
       in_file = Tempfile.open('in', exec_chdir, mode: File::Constants::RDWR)
       out_file = Tempfile.open('in', exec_chdir, mode: File::Constants::RDWR)
@@ -76,7 +79,10 @@ class ALTaskExec
       )
     end
 
-    pid, = exe.execute(true) do |status, time|
+    # for generate task_id
+    seed = Time.now.to_i
+
+    pid, = exe.execute(true) do |status, time| # rubocop:disable Metrics/BlockLength
       # finish
       # vlog "do_exec: finish pid=#{pid}"
       if @fileio
@@ -103,14 +109,24 @@ class ALTaskExec
           result: { exited: true, exitstatus: status&.exitstatus, time: time,
                     out: output, err: errlog } }
       )
-      local_storage.delete :pid
+
+      exec_task_id = "#{user_id}@#{pid}@#{seed}".hash.to_s(36)
+      exec_tasks = local_storage[:exec_tasks]
+      exec_tasks.delete exec_task_id if exec_tasks && exec_tasks[exec_task_id]
     end
+
+    exec_task_id = "#{user_id}@#{pid}@#{seed}".hash.to_s(36)
+
     # vlog "do_exec: start pid=#{pid}"
     reporter.report(
-      { success: true, continue: true, taskid: 1,
+      { success: true, continue: true, taskid: exec_task_id,
         result: { exited: false } }
     )
-    local_storage[:pid] = pid
+
+    exec_tasks = local_storage[:exec_tasks] || {}
+    wlog 'duplicate exec_task_id!' unless exec_tasks[exec_task_id].nil?
+    exec_tasks[exec_task_id] = pid
+    local_storage[:exec_tasks] = exec_tasks
     nil
   end
 end

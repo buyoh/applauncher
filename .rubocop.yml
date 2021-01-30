@@ -1,10 +1,8 @@
 AllCops:
   TargetRubyVersion: 2.7
   Exclude:
-    - "node_modules/**/*"
-    - ".next/**/*"
     - "var/**/*"
-    - "build/**/*"
+    - "tmp/**/*"
 
 AsciiComments:
   Enabled: false

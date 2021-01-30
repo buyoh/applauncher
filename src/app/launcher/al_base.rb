@@ -4,7 +4,7 @@ require 'json'
 
 module ALBase
   @@mutex_stderr = Mutex.new
-  @@verbose = 0
+  @@verbose = 1 # [-1, 0, 1]
   @@validate = false
   @@superuser = false
   @@work_directory = "#{__dir__}/../../tmp"
@@ -35,7 +35,7 @@ module ALBase
     return unless @@verbose >= 1
 
     @@mutex_stderr.synchronize do
-      $stderr.puts str
+      warn str
     end
   end
 
@@ -43,7 +43,7 @@ module ALBase
     return unless @@verbose >= 0
 
     @@mutex_stderr.synchronize do
-      $stderr.puts str
+      warn str
     end
   end
 end

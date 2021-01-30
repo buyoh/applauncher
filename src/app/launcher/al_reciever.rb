@@ -39,16 +39,14 @@ class ALReciever
       end
       next if json_line.nil?
 
-      # json.idを失わないようにALRecieverで管理する
-      # ALRecieverの重要な役割のひとつ
+      # idにはクエリを識別するための情報群を格納する。
+      # launcherはレスポンスにそのままのidを含めて返す。
+      # "id": {
+      #    // クエリとレスポンスを関連付けるための識別子
+      #    // 送信元が各クエリについてユニークな値を指定する
+      #    "request_id": "value",
+      # }
       id = json_line['id'] # task-unique
-
-      # クエリに対してレスポンスを関連付けるための識別子 todo: rename 'request_id'
-      # 各クエリについてユニークな値を指定するべき
-      # launcher の実装としては使わないが、必要である。
-      _req_id = id['request_id']
-      # none
-      # _user_id = id['user_id']
       json_line.delete 'id'
 
       # user_id による分類は未使用
