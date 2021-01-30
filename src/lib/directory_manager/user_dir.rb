@@ -14,8 +14,9 @@ class UserDir
     key = (@dirname + @boxid_counter.to_s).hash.to_s(36)
     @boxid_counter += 1
     box_dirname = "_j_#{key.hash.to_s(36)}/"
-    @key2box[key] = BoxDir.new(box_dirname)
-    key
+    box = BoxDir.new(box_dirname)
+    @key2box[key] = box
+    [key, box.dirname]
   end
 
   def get_boxdir(key)

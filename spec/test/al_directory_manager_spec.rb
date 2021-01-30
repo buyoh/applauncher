@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_root 'app_launcher/directory_manager/directory_manager.rb'
+require_root 'lib/directory_manager/directory_manager.rb'
 
 RSpec.describe DirectoryManager do
   it 'create dirs' do

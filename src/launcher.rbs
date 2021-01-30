@@ -1,46 +1,4 @@
 # Classes
-class Object
-  private
-  def action: (untyped reporter, untyped local_storage, untyped _directory_manager) -> nil
-            | (untyped reporter, untyped local_storage, untyped directory_manager) -> Integer?
-            | (untyped reporter, untyped local_storage, untyped directory_manager) -> nil
-            | (untyped reporter, untyped local_storage, untyped directory_manager) -> nil
-            | (untyped reporter, untyped local_storage, untyped directory_manager) -> nil
-end
-
-module FileUtils
-  alias getwd pwd
-  alias self.getwd self.pwd
-  alias chdir cd
-  alias self.chdir self.cd
-  alias mkpath mkdir_p
-  alias makedirs mkdir_p
-  alias self.mkpath self.mkdir_p
-  alias self.makedirs self.mkdir_p
-  alias link ln
-  alias self.link self.ln
-  alias symlink ln_s
-  alias self.symlink self.ln_s
-  alias copy cp
-  alias self.copy self.cp
-  alias move mv
-  alias self.move self.mv
-  alias remove rm
-  alias self.remove self.rm
-  alias safe_unlink rm_f
-  alias self.safe_unlink self.rm_f
-  alias rmtree rm_rf
-  alias self.rmtree self.rm_rf
-  alias identical? compare_file
-  alias cmp compare_file
-  alias self.identical? self.compare_file
-  alias self.cmp self.compare_file
-
-  class Entry_
-    alias traverse preorder_traverse
-  end
-end
-
 class OptionParser
   alias set_banner banner=
   alias set_program_name program_name=
@@ -107,27 +65,11 @@ module ALBase
                | (String str) -> nil
 end
 
-class Executor
-  @cmd: String
-  @args: Array[bot]
-  @timeout: Integer
-  @chdir: String
-
-  def initialize: (?cmd: String, ?args: Array[bot], ?stdin: Tempfile, ?stdout: Tempfile, ?stderr: Tempfile, ?timeout: Integer, ?chdir: String) -> nil
-  attr_writer stdin: Tempfile
-  attr_writer stdout: Tempfile
-  attr_writer stderr: Tempfile
-  def reset: -> nil
-  def execute: (?bool noblock) ?{ (Process::Status?, nil) -> untyped } -> [Integer?, Process::Status?, nil]
-  def self.kill: (untyped pid) -> Integer
-  attr_reader status: Process::Status?
-end
-
 module ALTask
   include ALBase
 
-  def report_failed: (untyped reporter, untyped err) -> untyped
-                   | (untyped reporter, untyped err) -> untyped
+  def report_failed: (ALReciever::Reporter reporter, String err) -> nil
+                   | (ALReciever::Reporter reporter, String err) -> nil
 end
 
 class ALSocket
@@ -139,8 +81,8 @@ class ALSocket
   attr_reader input: IO
   attr_reader output: IO
   def gets: -> String?
-  def puts: (String str) -> IO
-  def responce: ({id: String | false, success: String | false, error: String | false} data) -> IO
+  def puts: (String str) -> nil
+  def responce: ({id: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, success: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, continue: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, taskid: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, result: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, error: Integer | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}} data) -> nil
 end
 
 class ALLocalStorage < Hash
@@ -160,7 +102,7 @@ class ALReciever
   @local_storage_manager: ALLocalStorageManager
 
   def initialize: (ALSocket? launcher_socket) -> ALLocalStorageManager
-  def handle: ?{ (nil, Reporter, nil) -> IO } -> nil
+  def handle: ?{ (nil, Reporter, nil) -> nil } -> nil
 
   class Reporter
     include ALBase
@@ -168,7 +110,7 @@ class ALReciever
     @id: untyped
 
     def initialize: (ALSocket? socket, untyped id) -> untyped
-    def report: ({success: false, error: String} result) -> IO
+    def report: ({success: bool, continue: true, taskid: Integer, result: {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, error: String} result) -> nil
   end
 end
 
@@ -183,9 +125,9 @@ class UserDir
 
   def initialize: (String dirname) -> Integer
   attr_reader dirname: String
-  def new_dir: -> String
-  def get_boxdir: (String key) -> String
-  def delete_box: (untyped key) -> BoxDir?
+  def new_dir: -> [String, String]
+  def get_boxdir: (untyped key) -> String
+  def delete_box: (untyped key) -> nil
   def exists?: (untyped key) -> bool
 end
 
@@ -200,7 +142,7 @@ class DirectoryManager
 
   public
   def install_user: (untyped user_key) -> UserDir
-  def uninstall_user: (untyped user_key) -> UserDir?
+  def uninstall_user: (untyped user_key) -> nil
   def new_box: (untyped user_key) -> String
   def delete_box: (untyped user_key, untyped box_key) -> nil
   def get_boxdir: (untyped user_key, untyped box_key) -> String?
@@ -208,42 +150,84 @@ class DirectoryManager
   def box_exists?: (untyped user_key, untyped box_key) -> bool
 end
 
-class Delegator < BasicObject
-  private
-  alias __raise__ raise
-end
-
 class Tempfile
   alias delete unlink
   alias length size
 end
 
-class ALTaskExec < Struct
-  attr_accessor box(): untyped
-  attr_accessor command(): untyped
-  attr_accessor arguments(): untyped
-  attr_accessor stdin(): untyped
-  attr_accessor fileio(): untyped
-  attr_accessor timeout(): untyped
+class Executor
+  @cmd: String
+  @args: Array[bot]
+  @timeout: Integer
+  @chdir: String?
+
+  def initialize: (?cmd: String, ?args: Array[bot], ?stdin: Tempfile, ?stdout: Tempfile, ?stderr: Tempfile, ?timeout: Integer, ?chdir: String?) -> nil
+  attr_writer stdin: Tempfile
+  attr_writer stdout: Tempfile
+  attr_writer stderr: Tempfile
+  def reset: -> nil
+  def execute: (?bool noblock) ?{ (Process::Status?, nil) -> untyped } -> [Integer?, Process::Status?, nil]
+  def self.kill: (untyped pid) -> Integer
+  attr_reader status: Process::Status?
 end
 
-class ALTaskKill < Struct
+class ALTaskExec
+  include ALTask
+  @box: untyped
+  @command: untyped
+  @arguments: Array[bot]
+  @stdin: String
+  @fileio: false
+  @timeout: Integer
+
+  def initialize: (untyped box, untyped command, Array[bot] arguments, String stdin, false fileio, Integer timeout) -> Integer
+  def self.from_json: (nil param) -> ALTaskExec?
+  def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
 end
 
-class ALTaskStore < Struct
-  attr_accessor box(): untyped
-  attr_accessor files(): untyped
+class ALTaskKill
+  include ALTask
+
+  def self.from_json: (nil _param) -> ALTaskKill
+  def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager _directory_manager) -> nil
 end
 
-class ALTaskSetupBox < Struct
+class ALTaskStore
+  include ALTask
+  @box: untyped
+  @files: untyped
+
+  def initialize: (untyped box, untyped files) -> untyped
+  def self.from_json: (nil param) -> ALTaskStore?
+  def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
+
+  class FileData
+    def initialize: (untyped path, untyped data) -> untyped
+    attr_accessor path: untyped
+    attr_accessor data: untyped
+    def self.check_valid_filequery: (untyped path) -> untyped
+    def self.from_json: (untyped param) -> FileData?
+  end
 end
 
-class ALTaskCleanupBox < Struct
-  attr_accessor box(): untyped
+class ALTaskSetupBox
+  include ALTask
+
+  def self.from_json: (nil _param) -> ALTaskSetupBox
+  def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
+end
+
+class ALTaskCleanupBox
+  include ALTask
+  @box: untyped
+
+  def initialize: (untyped box) -> untyped
+  def self.from_json: (nil param) -> ALTaskCleanupBox?
+  def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
 end
 
 module ALTaskFactory
-  def self.from_json: (nil param) -> nil
+  def self.from_json: (nil param) -> ((ALTaskCleanupBox | ALTaskExec | ALTaskKill | ALTaskSetupBox | ALTaskStore)?)
 end
 
 class AppLauncher
@@ -261,9 +245,4 @@ module Shellwords
   alias self.split self.shellsplit
   alias self.escape self.shellescape
   alias self.join self.shelljoin
-end
-
-class FileData < Struct
-  attr_accessor path(): untyped
-  attr_accessor data(): untyped
 end

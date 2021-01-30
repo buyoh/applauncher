@@ -2,13 +2,13 @@
 
 require 'tempfile'
 
-require_relative '../lib/executor'
+require_relative '../../lib/executor'
 require_relative 'al_task'
 
 class ALTaskExec
   include ALTask
 
-  def initialize(box, command, arguments, stdin, fileio, timeout)
+  def initialize(box, command, arguments, stdin, fileio, timeout) # rubocop:disable Metrics/ParameterLists
     @box = box
     @command = command
     @arguments = arguments
@@ -28,7 +28,7 @@ class ALTaskExec
     return nil unless (cmd.is_a? String) && !cmd.empty?
     return nil unless args.is_a? Array
     return nil unless stdin.is_a? String
-    return nil unless fileio.is_a? TrueClass || fileio.is_a? FalseClass
+    return nil unless (fileio.is_a? TrueClass) || (fileio.is_a? FalseClass)
     return nil unless timeout.is_a? Integer # TODO: assert range
 
     new(box, cmd, args, stdin, fileio, timeout)
@@ -111,5 +111,6 @@ class ALTaskExec
         result: { exited: false } }
     )
     local_storage[:pid] = pid
+    nil
   end
 end

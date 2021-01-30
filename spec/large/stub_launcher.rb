@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require_root 'app_launcher/al_base.rb'
-require_root 'app_launcher/al_task.rb'
-require_root 'app_launcher/al_socket.rb'
-require_root 'app_launcher/al_reciever.rb'
-require_root 'app_launcher/directory_manager/directory_manager.rb'
-require_root 'app_launcher/al_task_factory.rb'
+require_root 'app/launcher/al_base.rb'
+require_root 'app/launcher/al_task.rb'
+require_root 'app/launcher/al_socket.rb'
+require_root 'app/launcher/al_reciever.rb'
+require_root 'lib/directory_manager/directory_manager.rb'
+require_root 'app/launcher/al_task_factory.rb'
 
 class StubLauncher
   include ALBase

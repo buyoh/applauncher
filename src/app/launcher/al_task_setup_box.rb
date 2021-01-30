@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'fileutils'
-require_relative '../lib/executor'
 require_relative 'al_task'
 
 class ALTaskSetupBox

@@ -15,7 +15,7 @@ Style/StderrPuts:
 Metrics/MethodLength:
   Max: 60
   Exclude:
-    - "src/app_launcher/al_task_exec.rb" # TODO
+    - "src/app/launcher/al_task_exec.rb" # TODO
     - "src/launcher.rb"
     - "spec/large/**/*.rb"
 
@@ -35,20 +35,20 @@ Metrics/AbcSize:
   Max: 33
   Exclude:
     - "src/launcher.rb"
-    - "src/app_launcher/al_task_exec.rb" # TODO
+    - "src/app/launcher/al_task_exec.rb" # TODO
 
 Metrics/CyclomaticComplexity:
   Max: 8
   Exclude:
     - "src/launcher.rb"
     - "src/lib/executor.rb" # TODO
-    - "src/app_launcher/al_task_exec.rb" # TODO
+    - "src/app/launcher/al_task_exec.rb" # TODO
 
 Metrics/PerceivedComplexity:
   Exclude:
     - "src/launcher.rb"
     - "src/lib/executor.rb" # TODO
-    - "src/app_launcher/al_task_exec.rb" # TODO
+    - "src/app/launcher/al_task_exec.rb" # TODO
 
 Style/ClassVars:
   Enabled: false

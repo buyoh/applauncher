@@ -1,0 +1,12 @@
+class IO
+  def self.pipe: () -> [IO, IO]
+end
+
+class Thread
+  # def self.start: (*untyped) {(*untyped) -> untyped} -> Thread
+  # def self.start: () {(*untyped) -> untyped} -> Thread
+end
+
+class Object
+  def call: (*untyped) -> untyped
+end

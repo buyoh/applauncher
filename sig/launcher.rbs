@@ -4,10 +4,6 @@ type jhash = Hash[String, Integer | String | bool | nil | jhash | Array[jhash]]
 type symhash = Hash[Symbol | String, Integer | String | bool | nil | symhash | Array[symhash]]
 # type jhash = Hash[String, String]
 
-class IO
-  def self.pipe: () -> [IO, IO]
-end
-
 module ALBase
   @@mutex_stderr: Thread::Mutex
   @@verbose: Integer
@@ -44,7 +40,8 @@ class Executor
   attr_writer stdin: String | IO
   attr_writer stdout: String | IO
   attr_writer stderr: String | IO
-  def initialize: (cmd: String, ?args: Array[String], ?stdin: String | IO, ?stdout: String | IO, ?stderr: String | IO, ?timeout: Numeric, ?chdir: String) -> untyped
+  # def initialize: (cmd: String, args: Array[String], stdin: String | IO, stdout: String | IO, stderr: String | IO, timeout: Numeric, chdir: String) -> untyped
+  # def initialize: (?cmd: String, ?args: Array[String], ?stdin: String | IO, ?stdout: String | IO, ?stderr: String | IO, ?timeout: Numeric, ?chdir: String) -> untyped
   def reset: -> nil
   def execute: (?bool noblock) ?{ (Process::Status?, Numeric?) -> untyped } -> [Integer?, Process::Status?, Numeric?]
   def self.kill: (untyped pid) -> Integer
@@ -95,7 +92,7 @@ class ALReciever
     @id: String
 
     def initialize: (ALSocket socket, String id) -> untyped
-    def report: (symhash result) -> IO
+    def report: (symhash result) -> nil
   end
 end
 
@@ -110,8 +107,8 @@ class UserDir
 
   attr_reader dirname: String
   def initialize: (String dirname) -> untyped
-  def new_dir: -> String
-  def get_boxdir: (String key) -> String
+  def new_dir: -> [String, String]
+  def get_boxdir: (String key) -> String?
   def delete_box: (String key) -> nil
   def exists?: (String key) -> bool
 end

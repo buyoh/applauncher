@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 require 'fileutils'
-require_relative '../al_base'
+require_relative '../../app/launcher/al_base' # TODO: remove this.
 require_relative 'user_dir'
 
 # root/[user]/[box] の2層を管理する
 # userは外部から与えられる識別子を使って管理する
 # boxは自身で生成する識別子を使って管理する（統一したほうが良いかも）
 class DirectoryManager
-  include ALBase
+  include ALBase # TODO: remove this.
 
   def initialize
     @key2userdir = {}
@@ -41,9 +41,8 @@ class DirectoryManager
     u = @key2userdir[user_key]
     return nil unless u
 
-    key = u.new_dir
-    j = u.get_boxdir(key)
-    FileUtils.mkdir_p work_directory + u.dirname + j
+    key, boxdir = u.new_dir
+    FileUtils.mkdir_p work_directory + u.dirname + boxdir
     key
   end
 

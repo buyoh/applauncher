@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_root 'lib/executor.rb'
+require_root 'lib/executor'
 
 RSpec.describe Executor do
   it 'blocking execution' do

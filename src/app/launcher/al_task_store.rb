@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'fileutils'
-require_relative '../lib/executor'
 require_relative 'al_task'
 
 class ALTaskStore
@@ -12,7 +11,14 @@ class ALTaskStore
     @files = files
   end
 
-  FileData = Struct.new('FileData', :path, :data) do
+  class FileData
+    def initialize(path, data)
+      self.path = path
+      self.data = data
+    end
+
+    attr_accessor :path, :data
+
     def self.check_valid_filequery(path)
       !path.nil? && !path.start_with?('/') && !path.include?('..')
     end
@@ -34,19 +40,18 @@ class ALTaskStore
     return nil unless box.is_a? String
     return nil unless files.is_a? Array
 
-    files = files.map { |f| FileData.from_json(f) }
-    return nil unless !files.nil? && files.all?
+    files = files.map { |f| FileData.from_json(f) }.compact
+    return nil if files.empty?
 
     new(box, files)
   end
 
   def action(reporter, local_storage, directory_manager)
-    unless directory_manager.box_exists?(local_storage[:user_id_str], @box)
+    ls_chdir = directory_manager.get_boxdir(local_storage[:user_id_str], @box)
+    unless ls_chdir
       report_failed reporter, 'uninitialized box'
       return nil
     end
-
-    ls_chdir = directory_manager.get_boxdir(local_storage[:user_id_str], @box)
 
     # work
     @files.each do |file|

@@ -1,9 +1,11 @@
 # typeprof + steep 導入考察
 
+https://github.com/buyoh/applauncher/issues/7
+
 ## 現状
 
-- typeprof の推論不足がかなりあるので、必要となる手作業が重め
-  - 未完了
+- ~~typeprof の推論不足がかなりあるので、必要となる手作業が重め~~
+  - 流石に全部推論するのは無理
 - 特に Hash 系のエラーが非常に多い
   - json から取得したデータ
     - しかたなし
@@ -11,28 +13,13 @@
   - 内部だけで管理するような、追っていけば証明可能だが、Hash 型としては証明不能なもの
     - `data['path']` など
     - `Struct` を使う
-- リファクタリングが必要なため今の所 workflow には入れない
-
-```
-t1 = nil
-t2 = nil
-t1 = Thread.start do
-  sleep 3
-  t2.exit
-  puts 't1'
-end
-t2 = Thread.start do
-  sleep 5
-  t1.exit
-  puts 't2'
-end
-[t1,t2].each(&:join)
-```
+- RBS の表現力不足の為に、エラーが取り除けない箇所がある。
+- 今の所 workflow には入れない
 
 ## 理想
 
 - rb ファイルに型注釈を書きたくない
-- typeprof で型情報をある程度自動生成してほしい
+  - やむを得ないローカル変数の強制型変換は書きたい
 
 ## SteepFile
 

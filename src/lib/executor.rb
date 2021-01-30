@@ -21,8 +21,6 @@ class Executor
     @stderr = stderr
     @timeout = timeout
     @chdir = chdir
-    raise ArgumentError if @cmd.empty?
-
     @status = nil
   end
 
@@ -30,6 +28,7 @@ class Executor
 
   def reset
     @status = nil
+    nil
   end
 
   # NOTE: Style/OptionalBooleanParameter
@@ -59,6 +58,8 @@ class Executor
     t1 = Thread.start do
       sleep @timeout
       Process.kill :KILL, pid
+      next unless t2.is_a? Thread
+
       t2.exit # Ruby does not have race like javascript Promise.race
     end
     # waitpid thread
@@ -66,6 +67,8 @@ class Executor
       pid, s = Process.waitpid2(pid)
       time = Time.now - start_time
       @status = s
+      next unless t1.is_a? Thread
+
       t1.exit
     end
 
