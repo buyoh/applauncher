@@ -40,6 +40,7 @@ class ALTaskStore
     return nil unless box.is_a? String
     return nil unless files.is_a? Array
 
+    # @type var files: untyped
     files = files.map { |f| FileData.from_json(f) }.compact
     return nil if files.empty?
 

@@ -11,6 +11,7 @@ class ALTaskKill
   end
 
   def self.from_json(param)
+    # @type var exec_task_id: untyped
     exec_task_id = param['taskid']
     return nil if !exec_task_id.nil? && !exec_task_id.is_a?(String)
 

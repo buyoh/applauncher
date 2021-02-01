@@ -2,6 +2,20 @@
 
 # require 'stringio'
 
+class Thread
+  def self.start2(&lam)
+    # @type var s: untyped
+    s = self
+    s.start(&lam)
+  end
+
+  def self.start3(lam)
+    # @type var s: untyped
+    s = self
+    s.start(&lam)
+  end
+end
+
 # -----------------------------------------------------------------------------
 # launch application
 #
@@ -38,6 +52,7 @@ class Executor
     # execute command
     pid = fork do
       # 実行ユーザ変更の機能追加を考慮してspawnでは無い
+      # @type var h: untyped
       h = {
         in: @stdin,
         out: @stdout,
@@ -49,37 +64,62 @@ class Executor
       exit 127
     end
 
-    start_time = Time.now
+    # never happen (impl for RBS)
+    return [-1, nil, nil] if pid.nil?
+
+    start_time = Time.now.to_f
+    # @type var time: Float?
     time = nil
 
+    # NOTE: Ruby does not have race like javascript Promise.race
+    # note: RBS 1.0.3 Thread type is wrong so that it's wrote unobvious code.
+
+    # @type var t1: Thread?
     t1 = nil
+    # @type var t2: Thread?
     t2 = nil
     # timeout thread
-    t1 = Thread.start do
+    t1 = Thread.start2 do
       sleep @timeout
       Process.kill :KILL, pid
-      next unless t2.is_a? Thread
-
-      t2.exit # Ruby does not have race like javascript Promise.race
+      t2.exit if t2.is_a? Thread
     end
     # waitpid thread
-    t2 = Thread.start do
+    t2 = Thread.start2 do
       pid, s = Process.waitpid2(pid)
-      time = Time.now - start_time
+      time = Time.now.to_f - start_time
       @status = s
-      next unless t1.is_a? Thread
-
-      t1.exit
+      t1.exit if t1.is_a? Thread
     end
 
     race_and_finalize = lambda do
+      # @type var t1: Thread
+      # @type var t2: Thread
       # wait
-      [t1, t2].each(&:join)
+      # [t1, t2].each(&:join) # cant wrote in RBS
+      t1.join
+      t2.join
 
       # finalize
-      @stdin.close if @stdin.respond_to?(:close)
-      @stdout.close if @stdout.respond_to?(:close)
-      @stderr.close if @stderr.respond_to?(:close)
+      # RBS does not work...
+      # @stdin.close if @stdin.respond_to?(:close)
+      # @stdout.close if @stdout.respond_to?(:close)
+      # @stderr.close if @stderr.respond_to?(:close)
+      if @stdin.respond_to?(:close)
+        # @type var o: untyped
+        o = @stdin
+        o.close
+      end
+      if @stdout.respond_to?(:close)
+        # @type var o: untyped
+        o = @stdout
+        o.close
+      end
+      if @stderr.respond_to?(:close)
+        # @type var o: untyped
+        o = @stderr
+        o.close
+      end
 
       # callback if onfinished is not nil
       onfinished&.call(@status, time)
@@ -87,7 +127,8 @@ class Executor
 
     if noblock
       # wait by another thread
-      Thread.start(&race_and_finalize)
+      # Thread.start2(&race_and_finalize)
+      Thread.start3(race_and_finalize)
       # pid を返すので、殺したくなったら Process::kill してね
       [pid, nil, nil]
     else

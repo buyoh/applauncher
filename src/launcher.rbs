@@ -1,4 +1,9 @@
 # Classes
+class Thread
+  def self.start2: ?{ -> nil } -> untyped
+  def self.start3: (Proc lam) -> untyped
+end
+
 class OptionParser
   alias set_banner banner=
   alias set_program_name program_name=
@@ -238,7 +243,7 @@ class AppLauncher
   @unix_server: UNIXServer
 
   def initialize: -> ((Array[(OptionParser::Arguable | String)?] | OptionParser::Arguable | String)?)
-  def main: -> nil
+  def main: -> bot
 end
 
 module Shellwords

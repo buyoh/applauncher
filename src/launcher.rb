@@ -50,9 +50,12 @@ class AppLauncher
     case @config[:ipc]
     when :stdio
     when :unix
-      File.unlink @config[:sockpath] if File.exist? @config[:sockpath]
-      @unix_server = UNIXServer.new(@config[:sockpath])
-      system "chmod 666 #{@config[:sockpath]}"
+      # NOTE: sp always String.
+      # @type var sp: untyped
+      sp = @config[:sockpath]
+      File.unlink sp if sp && File.exist?(sp)
+      @unix_server = UNIXServer.new(sp)
+      system "chmod 666 #{sp}"
     else
       abort "unknown ipc config: #{@config[:ipc]}"
     end
@@ -72,9 +75,15 @@ class AppLauncher
       when :unix
         unix_socket = @unix_server.accept
         socket = ALSocket.new(unix_socket, unix_socket)
+      else
+        # break  # steep cant use break?
+        exit 1
       end
 
-      reciever = ALReciever.new(socket)
+      # obvious
+      # @type var socke: untyped
+      socke = socket
+      reciever = ALReciever.new(socke)
 
       reciever.handle do |json_line, reporter, local_storage|
         # NOTE: ノンブロッキングで書く必要がある。TaskStoreがかなり怪しいが
@@ -93,7 +102,8 @@ class AppLauncher
         unix_socket.close
       end
 
-      break unless @config[:loop]
+      # break unless @config[:loop] # steep cant use break?
+      exit 0 unless @config[:loop]
     end
   end
 end

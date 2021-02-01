@@ -21,13 +21,15 @@ class ALTaskExec # rubocop:disable Metrics/ClassLength
   def self.from_json(param)
     box = param['box']
     cmd = param['cmd']
+    # @type var args: untyped
     args = param['args'] || []
     stdin = param['stdin'] || ''
+    # @type var fileio: untyped
     fileio = param['fileio'] || false
     timeout = param['timeout'] || 10
-    return nil unless (box.is_a? String) && !box.empty?
-    return nil unless (cmd.is_a? String) && !cmd.empty?
-    return nil unless args.is_a? Array
+    return nil unless box.is_a?(String) && !box.empty?
+    return nil unless cmd.is_a?(String) && !cmd.empty?
+    return nil unless args.is_a?(Array) && args.all? { |e| e.is_a?(String) }
     return nil unless stdin.is_a? String
     return nil unless (fileio.is_a? TrueClass) || (fileio.is_a? FalseClass)
     return nil unless timeout.is_a? Integer # TODO: assert range
@@ -99,6 +101,9 @@ class ALTaskExec # rubocop:disable Metrics/ClassLength
         out_file.delete
         err_file.delete
       else
+        # always IO
+        # @type var out_r: untyped
+        # @type var err_r: untyped
         output = out_r.read
         errlog = err_r.read
         out_r.close
@@ -123,6 +128,8 @@ class ALTaskExec # rubocop:disable Metrics/ClassLength
         result: { exited: false } }
     )
 
+    # always Hash[Symbol, String]
+    # @type var exec_tasks: untyped
     exec_tasks = local_storage[:exec_tasks] || {}
     wlog 'duplicate exec_task_id!' unless exec_tasks[exec_task_id].nil?
     exec_tasks[exec_task_id] = pid

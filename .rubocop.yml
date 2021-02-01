@@ -33,6 +33,7 @@ Metrics/AbcSize:
   Max: 33
   Exclude:
     - "src/launcher.rb"
+    - "src/lib/executor.rb" # TODO
     - "src/app/launcher/al_task_exec.rb" # TODO
 
 Metrics/CyclomaticComplexity:
