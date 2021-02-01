@@ -4,7 +4,7 @@ require 'json'
 
 module ALBase
   @@mutex_stderr = Mutex.new
-  @@verbose = 1 # [-1, 0, 1]
+  @@verbose = 0 # [-1, 0, 1]
   @@validate = false
   @@superuser = false
   @@work_directory = "#{__dir__}/../../tmp"
