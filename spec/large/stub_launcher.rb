@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'tmpdir'
 require_root 'app/launcher/al_base.rb'
 require_root 'app/launcher/al_task.rb'
 require_root 'app/launcher/al_socket.rb'
@@ -29,17 +30,19 @@ class StubLauncher
     # socket = ALSocket.new(STDIN, STDOUT)
     socket = ALSocket.new(@iwr, @irw)
 
-    directory_manager = DirectoryManager.new
-    reciever = ALReciever.new(socket)
+    Dir.mktmpdir do |tmpdir|
+      directory_manager = DirectoryManager.new(tmpdir)
+      reciever = ALReciever.new(socket)
 
-    reciever.handle do |json_line, reporter, local_storage|
-      # NOTE: ノンブロッキングで書く必要がある。TaskStoreがかなり怪しいが
-      # ノンブロッキングで書くか、thread + chdir禁止か。forkはメモリを簡単に共有出来ないのでNG
-      task = ALTaskFactory.from_json json_line
-      if task
-        task.action(reporter, local_storage, directory_manager)
-      else
-        reporter.report({ success: false, error: 'unknown method' })
+      reciever.handle do |json_line, reporter, local_storage|
+        # NOTE: ノンブロッキングで書く必要がある。TaskStoreがかなり怪しいが
+        # ノンブロッキングで書くか、thread + chdir禁止か。forkはメモリを簡単に共有出来ないのでNG
+        task = ALTaskFactory.from_json json_line
+        if task
+          task.action(reporter, local_storage, directory_manager)
+        else
+          reporter.report({ success: false, error: 'unknown method' })
+        end
       end
     end
   end

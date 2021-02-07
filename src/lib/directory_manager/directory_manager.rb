@@ -1,17 +1,15 @@
 # frozen_string_literal: true
 
 require 'fileutils'
-require_relative '../../app/launcher/al_base' # TODO: remove this.
 require_relative 'user_dir'
 
 # root/[user]/[box] の2層を管理する
 # userは外部から与えられる識別子を使って管理する
 # boxは自身で生成する識別子を使って管理する（統一したほうが良いかも）
 class DirectoryManager
-  include ALBase # TODO: remove this.
-
-  def initialize
+  def initialize(work_directory)
     @key2userdir = {}
+    @work_directory = work_directory
   end
 
   private
@@ -24,7 +22,7 @@ class DirectoryManager
 
   def install_user(user_key)
     dir = generate_userdirname(user_key)
-    FileUtils.mkdir_p work_directory + dir
+    FileUtils.mkdir_p @work_directory + dir
     @key2userdir[user_key] = UserDir.new(dir)
   end
 
@@ -32,7 +30,7 @@ class DirectoryManager
     dir = @key2userdir[user_key].dirname
     return unless dir
 
-    FileUtils.rm_rf work_directory + dir
+    FileUtils.rm_rf @work_directory + dir
     @key2userdir.delete user_key
     nil
   end
@@ -42,7 +40,7 @@ class DirectoryManager
     return nil unless u
 
     key, boxdir = u.new_dir
-    FileUtils.mkdir_p work_directory + u.dirname + boxdir
+    FileUtils.mkdir_p @work_directory + u.dirname + boxdir
     key
   end
 
@@ -53,7 +51,7 @@ class DirectoryManager
     j = u.get_boxdir(box_key)
     return nil unless j
 
-    FileUtils.rm_rf work_directory + u.dirname + j
+    FileUtils.rm_rf @work_directory + u.dirname + j
     u.delete_box box_key
     nil
   end
@@ -65,7 +63,7 @@ class DirectoryManager
     j = u.get_boxdir(box_key)
     return nil unless j
 
-    work_directory + u.dirname + j
+    @work_directory + u.dirname + j
   end
 
   def user_exists?(user_key)

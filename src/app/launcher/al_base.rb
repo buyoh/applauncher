@@ -6,8 +6,7 @@ module ALBase
   @@mutex_stderr = Mutex.new
   @@verbose = 0 # [-1, 0, 1]
   @@validate = false
-  @@superuser = false
-  @@work_directory = "#{__dir__}/../../tmp"
+  @@superuser = false # currently unused
 
   module_function
 
@@ -21,14 +20,6 @@ module ALBase
 
   def validation_enabled?
     @@validate
-  end
-
-  def work_directory
-    @@work_directory
-  end
-
-  def update_work_directory(path)
-    @@work_directory = path
   end
 
   def vlog(str)

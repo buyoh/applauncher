@@ -9,7 +9,6 @@ module ALBase
   @@verbose: Integer
   @@validate: bool
   @@superuser: bool
-  @@work_directory: String
 
   def update_verbose: (Integer verbose) -> untyped
   def self.update_verbose: (Integer verbose) -> untyped
@@ -17,10 +16,6 @@ module ALBase
   def self.update_validate: (bool _validate) -> untyped
   def validation_enabled?: -> bool
   def self.validation_enabled?: -> bool
-  def work_directory: -> String
-  def self.work_directory: -> String
-  def update_work_directory: (String path) -> untyped
-  def self.update_work_directory: (String path) -> untyped
   def vlog: (String str) -> nil
   # def self.vlog: (String str) -> nil
   def wlog: (String str) -> nil
@@ -114,14 +109,14 @@ class UserDir
 end
 
 class DirectoryManager
-  include ALBase
   @key2userdir: Hash[String, UserDir]
+  @work_directory: String
 
   private
   def generate_userdirname: (String key) -> String
 
   public
-  def initialize: () -> untyped
+  def initialize: (String work_directory) -> untyped
   def install_user: (String user_key) -> UserDir
   def uninstall_user: (String user_key) -> nil
   def new_box: (String user_key) -> String?
@@ -197,7 +192,7 @@ end
 class AppLauncher
   include ALBase
   # @config: {ipc: :stdio, loop: bool, sockpath: nil}
-  @config: {ipc: :stdio | :unix, loop: bool, sockpath: String?}
+  @config: {ipc: :stdio | :unix, loop: bool, sockpath: String?, work_dir: String}
   @unix_server: untyped # UNIXServer
 
   def main: -> nil

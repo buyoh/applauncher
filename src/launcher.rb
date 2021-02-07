@@ -18,7 +18,7 @@ class AppLauncher
   include ALBase
 
   def initialize
-    @config = { ipc: :stdio, loop: false, sockpath: nil }
+    @config = { ipc: :stdio, loop: false, sockpath: nil, work_dir: "#{Dir.pwd}/tmp" }
     opts = OptionParser.new
     opts.on('--stdio') { @config[:ipc] = :stdio }
     opts.on('--unixsocket path') do |path|
@@ -26,8 +26,8 @@ class AppLauncher
       @config[:sockpath] = path
     end
     opts.on('--workdir path') do |path|
-      FileUtils.mkdir_p path  unless Dir.exist?(path)
-      update_work_directory path
+      FileUtils.mkdir_p path unless Dir.exist?(path)
+      @config[:work_dir] = path
     end
     opts.on('--verbose') do
       update_verbose 1
@@ -66,7 +66,7 @@ class AppLauncher
       exit
     end
 
-    directory_manager = DirectoryManager.new
+    directory_manager = DirectoryManager.new(@config[:work_dir])
 
     loop do
       case @config[:ipc]

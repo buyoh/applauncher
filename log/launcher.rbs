@@ -26,49 +26,26 @@ module ALBase
   @@verbose: Integer
   @@validate: bool
   @@superuser: false
-  @@work_directory: String
 
   def update_verbose: (Integer verbose) -> Integer
                     | (Integer verbose) -> Integer
-                    | (Integer verbose) -> Integer
   def self.update_verbose: (Integer verbose) -> Integer
-                         | (Integer verbose) -> Integer
                          | (Integer verbose) -> Integer
   def update_validate: (true validate) -> true
                      | (true validate) -> true
-                     | (true validate) -> true
   def self.update_validate: (true validate) -> true
-                          | (true validate) -> true
                           | (true validate) -> true
   def validation_enabled?: -> bool
                          | -> bool
-                         | -> bool
   def self.validation_enabled?: -> bool
                               | -> bool
-                              | -> bool
-  def work_directory: -> String
-                    | -> String
-                    | -> String
-  def self.work_directory: -> String
-                         | -> String
-                         | -> String
-  def update_work_directory: (untyped path) -> untyped
-                           | (untyped path) -> untyped
-                           | (untyped path) -> untyped
-  def self.update_work_directory: (untyped path) -> untyped
-                                | (untyped path) -> untyped
-                                | (untyped path) -> untyped
   def vlog: (String? str) -> nil
-          | (String? str) -> nil
           | (String? str) -> nil
   def self.vlog: (String? str) -> nil
                | (String? str) -> nil
-               | (String? str) -> nil
   def wlog: (String str) -> nil
           | (String str) -> nil
-          | (String str) -> nil
   def self.wlog: (String str) -> nil
-               | (String str) -> nil
                | (String str) -> nil
 end
 
@@ -139,10 +116,10 @@ class UserDir
 end
 
 class DirectoryManager
-  include ALBase
   @key2userdir: Hash[untyped, UserDir]
+  @work_directory: String
 
-  def initialize: -> Hash[bot, bot]
+  def initialize: (String work_directory) -> String
 
   private
   def generate_userdirname: (untyped key) -> String
@@ -241,7 +218,7 @@ end
 
 class AppLauncher
   include ALBase
-  @config: {ipc: :stdio, loop: false, sockpath: nil}
+  @config: {ipc: :stdio, loop: false, sockpath: nil, work_dir: String}
   @unix_server: UNIXServer
 
   def initialize: -> ((Array[(OptionParser::Arguable | String)?] | OptionParser::Arguable | String)?)
