@@ -93,14 +93,31 @@ RSpec.describe Executor do
       w.puts din
       w.flush
 
-      # phase 8: box finalization
+      # phase 8: download file
+      # TODO: check invalid filepath
       msg = r2s_queue.pop # block thread
       Thread.current.exit unless msg
       expect(phase_count).to eq 8
       din = JSON.generate(
+        { 'method' => 'pull',
+          'box' => work_box_id,
+          'files' => [
+            { 'path' => 'code.cpp' }
+          ],
+          'id' => { 'request_id' => 4 } }
+      )
+      phase_count += 1
+      w.puts din
+      w.flush
+
+      # phase 10: box finalization
+      msg = r2s_queue.pop # block thread
+      Thread.current.exit unless msg
+      expect(phase_count).to eq 10
+      din = JSON.generate(
         { 'method' => 'cleanupbox',
           'box' => work_box_id,
-          'id' => { 'request_id' => 4 } }
+          'id' => { 'request_id' => 5 } }
       )
       phase_count += 1
       w.puts din
@@ -183,6 +200,22 @@ RSpec.describe Executor do
       line = r.gets
       json = JSON.parse(line)
       expect(phase_count).to eq 9
+      expect(json['success']).to eq true
+      expect(json['files']).to be_kind_of Array
+      expect(json['files'].size).to eq 1
+      expect(json['files'][0]).to be_kind_of Hash
+      expect(json['files'][0].keys.sort).to eq %w[data path]
+      expect(json['files'][0]['path']).to eq 'code.cpp'
+      expect(json['files'][0]['data']).to be_kind_of String
+      expect(json['files'][0]['data'][0..4]).to eq '#incl'
+      expect(json['id']).to eq({ 'request_id' => 4 })
+      phase_count += 1
+      r2s_queue.push phase_count
+
+      # phase 11: notification(cleanup box complete) of phase 8
+      line = r.gets
+      json = JSON.parse(line)
+      expect(phase_count).to eq 11
       expect(json['success']).to eq true
 
       phase_count += 1

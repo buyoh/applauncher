@@ -66,7 +66,7 @@ class ALSocket
   attr_reader output: IO
   def gets: -> String?
   def puts: (String str) -> nil
-  def responce: ({id: String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, success: String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, continue: String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, taskid: String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, result: String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, error: String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}} data) -> nil
+  def responce: ({id: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, success: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, files: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, continue: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, taskid: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, result: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, error: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}} data) -> nil
 end
 
 class ALLocalStorage < Hash[untyped, untyped]
@@ -94,7 +94,7 @@ class ALReciever
     @id: untyped
 
     def initialize: (ALSocket? socket, untyped id) -> untyped
-    def report: ({success: bool, continue: true, taskid: String, result: {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, error: String} result) -> nil
+    def report: ({success: bool, files: Array[bot], continue: true, taskid: String, result: {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, error: String} result) -> nil
   end
 end
 
@@ -196,6 +196,24 @@ class ALTaskStore
   end
 end
 
+class ALTaskPull
+  include ALTask
+  @box: untyped
+  @files: untyped
+
+  def initialize: (untyped box, untyped files) -> untyped
+  def self.from_json: (nil param) -> ALTaskPull?
+  def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
+
+  class FileData
+    def initialize: (untyped path, String data) -> String
+    attr_accessor path: untyped
+    attr_accessor data: String
+    def self.check_valid_filequery: (untyped path) -> untyped
+    def self.from_json: (untyped param) -> FileData?
+  end
+end
+
 class ALTaskSetupBox
   include ALTask
 
@@ -213,7 +231,7 @@ class ALTaskCleanupBox
 end
 
 module ALTaskFactory
-  def self.from_json: (nil param) -> ((ALTaskCleanupBox | ALTaskExec | ALTaskKill | ALTaskSetupBox | ALTaskStore)?)
+  def self.from_json: (nil param) -> ((ALTaskCleanupBox | ALTaskExec | ALTaskKill | ALTaskPull | ALTaskSetupBox | ALTaskStore)?)
 end
 
 class AppLauncher

@@ -172,6 +172,25 @@ class ALTaskStore
   end
 end
 
+class ALTaskPull
+  include _ALTaskInterface[ALTaskPull]
+  include ALTask
+  @box: String
+  @files: Array[FileData]
+  def self.from_json: (jhash param) -> ALTaskPull?
+  def self.new: (String box, Array[FileData] files) -> ALTaskPull
+  def initialize: (String box, Array[FileData] files) -> untyped
+
+  class FileData
+    attr_accessor path: String
+    attr_accessor data: String
+    def self.check_valid_filequery: (String path) -> bool
+    def self.from_json: (jhash param) -> FileData?
+    def self.new: (String path, String data) -> FileData
+    def initialize: (String path, String data) -> untyped
+  end
+end
+
 class ALTaskSetupBox
   include _ALTaskInterface[ALTaskSetupBox]
   include ALTask
