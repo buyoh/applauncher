@@ -22,13 +22,13 @@ class ALTaskKill
     exec_tasks = local_storage[:exec_tasks]
     if !exec_tasks || !exec_tasks[@exec_task_id]
       vlog 'do_kill: no action'
-      reporter.report({ success: true, continue: true, result: { accepted: false } })
+      reporter.report({ success: true })
       return nil
     end
 
     pid = exec_tasks[@exec_task_id]
     Executor.kill pid
     vlog "do_kill: kill pid=#{pid}"
-    reporter.report({ success: true, continue: true, result: { accepted: true } })
+    reporter.report({ success: true })
   end
 end

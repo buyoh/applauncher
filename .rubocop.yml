@@ -35,6 +35,7 @@ Metrics/AbcSize:
     - "src/launcher.rb"
     - "src/lib/executor.rb" # TODO
     - "src/app/launcher/al_task_exec.rb" # TODO
+    - "src/app/launcher/al_task_exec_fileio.rb" # TODO
 
 Metrics/CyclomaticComplexity:
   Max: 8
@@ -42,12 +43,14 @@ Metrics/CyclomaticComplexity:
     - "src/launcher.rb"
     - "src/lib/executor.rb" # TODO
     - "src/app/launcher/al_task_exec.rb" # TODO
+    - "src/app/launcher/al_task_exec_fileio.rb" # TODO
 
 Metrics/PerceivedComplexity:
   Exclude:
     - "src/launcher.rb"
     - "src/lib/executor.rb" # TODO
     - "src/app/launcher/al_task_exec.rb" # TODO
+    - "src/app/launcher/al_task_exec_fileio.rb" # TODO
 
 Style/ClassVars:
   Enabled: false

@@ -66,7 +66,7 @@ class ALSocket
   attr_reader output: IO
   def gets: -> String?
   def puts: (String str) -> nil
-  def responce: ({id: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, success: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, files: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, continue: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, taskid: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, result: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, error: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}} data) -> nil
+  def responce: ({id: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String}, success: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String}, files: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String}, continue: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String}, taskid: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String}, result: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String}, error: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String}} data) -> nil
 end
 
 class ALLocalStorage < Hash[untyped, untyped]
@@ -94,7 +94,7 @@ class ALReciever
     @id: untyped
 
     def initialize: (ALSocket? socket, untyped id) -> untyped
-    def report: ({success: bool, files: Array[bot], continue: true, taskid: String, result: {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String, accepted: bool}, error: String} result) -> nil
+    def report: ({success: bool, files: Array[bot], continue: true, taskid: String, result: {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String}, error: String} result) -> nil
   end
 end
 
@@ -145,10 +145,10 @@ class Executor
   @timeout: Integer
   @chdir: String?
 
-  def initialize: (?cmd: String, ?args: Array[bot], ?stdin: Tempfile, ?stdout: Tempfile, ?stderr: Tempfile, ?timeout: Integer, ?chdir: String?) -> nil
-  attr_writer stdin: Tempfile
-  attr_writer stdout: Tempfile
-  attr_writer stderr: Tempfile
+  def initialize: (?cmd: String, ?args: Array[bot], ?stdin: untyped, ?stdout: untyped, ?stderr: untyped, ?timeout: Integer, ?chdir: String?) -> nil
+  attr_writer stdin: untyped
+  attr_writer stdout: untyped
+  attr_writer stderr: untyped
   def reset: -> nil
   def execute: (?bool noblock) ?{ (Process::Status?, nil) -> nil } -> [Integer?, Process::Status?, nil]
   def self.kill: (untyped pid) -> Integer
@@ -161,11 +161,26 @@ class ALTaskExec
   @command: untyped
   @arguments: Array[bot]
   @stdin: String
-  @fileio: false
   @timeout: Integer
 
-  def initialize: (untyped box, untyped command, Array[bot] arguments, String stdin, false fileio, Integer timeout) -> Integer
+  def initialize: (untyped box, untyped command, Array[bot] arguments, String stdin, Integer timeout) -> Integer
   def self.from_json: (nil param) -> ALTaskExec?
+  def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
+end
+
+class ALTaskExecFileIO
+  include ALTask
+  @box: untyped
+  @command: untyped
+  @arguments: Array[bot]
+  @stdin_path: untyped
+  @stdout_path: untyped
+  @stderr_path: untyped
+  @timeout: Integer
+
+  def initialize: (untyped box, untyped command, Array[bot] arguments, untyped stdin_path, untyped stdout_path, untyped stderr_path, Integer timeout) -> Integer
+  def self.check_valid_filequery: (untyped path) -> untyped
+  def self.from_json: (nil param) -> ALTaskExecFileIO?
   def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
 end
 
@@ -231,7 +246,7 @@ class ALTaskCleanupBox
 end
 
 module ALTaskFactory
-  def self.from_json: (nil param) -> ((ALTaskCleanupBox | ALTaskExec | ALTaskKill | ALTaskPull | ALTaskSetupBox | ALTaskStore)?)
+  def self.from_json: (nil param) -> ((ALTaskCleanupBox | ALTaskExec | ALTaskExecFileIO | ALTaskKill | ALTaskPull | ALTaskSetupBox | ALTaskStore)?)
 end
 
 class AppLauncher

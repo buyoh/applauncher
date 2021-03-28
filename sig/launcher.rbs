@@ -1,7 +1,7 @@
 # Classes
 
-type jhash = Hash[String, Integer | String | bool | nil | jhash | Array[jhash]]
-type symhash = Hash[Symbol | String, Integer | String | bool | nil | symhash | Array[symhash]]
+type jhash = Hash[String, Numeric | String | bool | nil | jhash | Array[jhash]]
+type symhash = Hash[Symbol | String, Numeric | String | bool | nil | symhash | Array[symhash]]
 # type jhash = Hash[String, String]
 
 module ALBase
@@ -140,10 +140,24 @@ class ALTaskExec
   @command: String
   @arguments: Array[String]
   @stdin: String | IO
-  @fileio: bool
   @timeout: Numeric
   def self.from_json: (jhash param) -> ALTaskExec?
-  def initialize: (String box, String command, Array[String] arguments, String | IO stdin, bool fileio, Numeric timeout) -> untyped
+  def initialize: (String box, String command, Array[String] arguments, String | IO stdin, Numeric timeout) -> untyped
+end
+
+class ALTaskExecFileIO
+  include _ALTaskInterface[ALTaskExec]
+  include ALTask
+  @box: String
+  @command: String
+  @arguments: Array[String]
+  @stdin_path: String?
+  @stdout_path: String?
+  @stderr_path: String?
+  @timeout: Numeric
+  def self.check_valid_filequery: (String path) -> bool
+  def self.from_json: (jhash param) -> ALTaskExecFileIO?
+  def initialize: (String box, String command, Array[String] arguments, String? stdin_path, String? stdout_path, String? stderr_path, Numeric timeout) -> untyped
 end
 
 class ALTaskKill

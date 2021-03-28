@@ -52,7 +52,9 @@ RSpec.describe Executor do
                   return 0;
                 }
               CODE_CPP_EOS
-}
+},
+            { 'path' => 'stdin.txt',
+              'data' => "5\n3 7 4 5 2\n" }
           ],
           'id' => {
             'request_id' => 1 # (server)ユーザのアクション単位で共通　KILLは別のアクションなのでrequest_idは異なる
@@ -93,31 +95,50 @@ RSpec.describe Executor do
       w.puts din
       w.flush
 
-      # phase 8: download file
-      # TODO: check invalid filepath
+      # phase 8: run2
       msg = r2s_queue.pop # block thread
       Thread.current.exit unless msg
       expect(phase_count).to eq 8
       din = JSON.generate(
-        { 'method' => 'pull',
+        { 'method' => 'execfileio',
           'box' => work_box_id,
-          'files' => [
-            { 'path' => 'code.cpp' }
-          ],
+          'cmd' => './prog',
+          'args' => [],
+          'stdin_path' => 'stdin.txt',
+          'stdout_path' => 'stdout.txt',
+          'stderr_path' => 'stderr.txt',
           'id' => { 'request_id' => 4 } }
       )
       phase_count += 1
       w.puts din
       w.flush
 
-      # phase 10: box finalization
+      # phase 11: download file
+      # TODO: check invalid filepath
       msg = r2s_queue.pop # block thread
       Thread.current.exit unless msg
-      expect(phase_count).to eq 10
+      expect(phase_count).to eq 11
+      din = JSON.generate(
+        { 'method' => 'pull',
+          'box' => work_box_id,
+          'files' => [
+            { 'path' => 'code.cpp' },
+            { 'path' => 'stdout.txt' }
+          ],
+          'id' => { 'request_id' => 5 } }
+      )
+      phase_count += 1
+      w.puts din
+      w.flush
+
+      # phase 13: box finalization
+      msg = r2s_queue.pop # block thread
+      Thread.current.exit unless msg
+      expect(phase_count).to eq 13
       din = JSON.generate(
         { 'method' => 'cleanupbox',
           'box' => work_box_id,
-          'id' => { 'request_id' => 5 } }
+          'id' => { 'request_id' => 6 } }
       )
       phase_count += 1
       w.puts din
@@ -196,26 +217,57 @@ RSpec.describe Executor do
       phase_count += 1
       r2s_queue.push phase_count
 
-      # phase 9: notification(cleanup box complete) of phase 8
+      # phase 9: notification(start) of phase 8
       line = r.gets
       json = JSON.parse(line)
       expect(phase_count).to eq 9
       expect(json['success']).to eq true
-      expect(json['files']).to be_kind_of Array
-      expect(json['files'].size).to eq 1
-      expect(json['files'][0]).to be_kind_of Hash
-      expect(json['files'][0].keys.sort).to eq %w[data path]
-      expect(json['files'][0]['path']).to eq 'code.cpp'
-      expect(json['files'][0]['data']).to be_kind_of String
-      expect(json['files'][0]['data'][0..4]).to eq '#incl'
+      expect(json['continue']).to eq true
+      _taskid = json['taskid'] # 上と同じtaskidで良いのか？
+      expect(json['result']['exited']).to eq false
+      expect(json['id']).to eq({ 'request_id' => 4 })
+      phase_count += 1
+
+      # phase 10: notification(start) of phase 8
+      line = r.gets
+      json = JSON.parse(line)
+      expect(phase_count).to eq 10
+      expect(json['success']).to eq true
+      expect(json['continue']).not_to eq true # false or null or undefined
+      # expect(json['taskid']).to eq taskid
+      expect(json['result']['exited']).to eq true
+      expect(json['result']['exitstatus']).to eq 0
       expect(json['id']).to eq({ 'request_id' => 4 })
       phase_count += 1
       r2s_queue.push phase_count
 
-      # phase 11: notification(cleanup box complete) of phase 8
+      # phase 12: notification(pull) of phase 11
       line = r.gets
       json = JSON.parse(line)
-      expect(phase_count).to eq 11
+      expect(phase_count).to eq 12
+      expect(json['success']).to eq true
+      expect(json['files']).to be_kind_of Array
+      expect(json['files'].size).to eq 2
+      expect(json['files'][0]).to be_kind_of Hash
+      expect(json['files'][1]).to be_kind_of Hash
+      expect(json['files'][0].keys.sort).to eq %w[data path]
+      expect(json['files'][1].keys.sort).to eq %w[data path]
+      idx_code = json['files'][0]['path'] == 'code.cpp' ? 0 : 1
+      idx_out = json['files'][0]['path'] == 'stdout.txt' ? 0 : 1
+      expect(json['files'][idx_code]['path']).to eq 'code.cpp'
+      expect(json['files'][idx_code]['data']).to be_kind_of String
+      expect(json['files'][idx_code]['data'][0..4]).to eq '#incl'
+      expect(json['files'][idx_out]['path']).to eq 'stdout.txt'
+      expect(json['files'][idx_out]['data']).to be_kind_of String
+      expect(json['files'][idx_out]['data']).to eq "2 3 4 5 7 \n"
+      expect(json['id']).to eq({ 'request_id' => 5 })
+      phase_count += 1
+      r2s_queue.push phase_count
+
+      # phase 14: notification(cleanup box complete) of phase 13
+      line = r.gets
+      json = JSON.parse(line)
+      expect(phase_count).to eq 14
       expect(json['success']).to eq true
 
       phase_count += 1
