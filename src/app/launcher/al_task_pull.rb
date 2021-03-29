@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+# frozen_string_literal: false
 
 require 'fileutils'
 require_relative 'al_task'
@@ -63,12 +63,13 @@ class ALTaskPull
       data = nil
       if File.exist?(path)
         if total_limit_size > total_size
-          data = IO.read(path, limit_size)
+          data = IO.read(path, limit_size) || ''
           total_size += data.size
         else
           data = ''
         end
       end
+      data&.force_encoding('utf-8')
       result_files << {
         path: file.path,
         data: data

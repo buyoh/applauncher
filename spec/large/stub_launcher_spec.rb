@@ -37,7 +37,7 @@ RSpec.describe Executor do
               'data' => <<~'CODE_CPP_EOS'
                 #include <bits/stdc++.h>
                 using namespace std;
-                int main() {
+                int main() {  // ”ぬ”
                   vector<int> vec;
                   int n; cin >> n;
                   for (int i = 0; i < n; ++i) {
