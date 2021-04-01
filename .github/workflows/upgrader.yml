@@ -34,15 +34,22 @@ jobs:
         run: |
           bundle update
       - name: presubmit
+        id: presubmit
         run: |
           ./presubmit.sh
       - name: commit phase
+        if: "${{ steps.presubmit.conclusion != 'skip' }}"
         run: |
           if [ `git diff | wc -l` -ne 0 ] ; then
-          git add Gemfile Gemfile.lock
+          git add package.json yarn.lock
           git commit -m 'upgrade by Github Actions'
           fi
+      - name: push
+        if: "${{ steps.presubmit.conclusion == 'success' }}"
+        run: |
+          git push origin || :
       - name: Create Pull Request
+        if: "${{ steps.presubmit.conclusion == 'failure' }}"
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
