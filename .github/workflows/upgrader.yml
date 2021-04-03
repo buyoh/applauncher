@@ -41,8 +41,15 @@ jobs:
         if: "${{ steps.presubmit.conclusion != 'skip' }}"
         run: |
           if [ `git diff | wc -l` -ne 0 ] ; then
-          git add package.json yarn.lock
+          git add Gemfile Gemfile.lock
           git commit -m 'upgrade by Github Actions'
+          fi
+      - name: commit phase2
+        if: "${{ steps.presubmit.conclusion != 'skip' }}"
+        run: |
+          if [ `git diff | wc -l` -ne 0 ] ; then
+          git add .
+          git commit -m 'modification due to upgrade by Github Actions'
           fi
       - name: push
         if: "${{ steps.presubmit.conclusion == 'success' }}"
