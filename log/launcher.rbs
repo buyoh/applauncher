@@ -262,11 +262,3 @@ class AppLauncher
   def initialize: -> ((Array[(OptionParser::Arguable | String)?] | OptionParser::Arguable | String)?)
   def main: -> bot
 end
-
-module Shellwords
-  alias shellwords shellsplit
-  alias self.shellwords self.shellsplit
-  alias self.split self.shellsplit
-  alias self.escape self.shellescape
-  alias self.join self.shelljoin
-end
