@@ -1,4 +1,4 @@
-# TypeProf 0.13.0
+# TypeProf 0.14.1
 
 # Classes
 module Kernel
@@ -29,21 +29,21 @@ end
 module ALBase
   @@mutex_stderr: Thread::Mutex
   @@verbose: Integer
-  @@validate: bool
+  @@validate: false
   @@superuser: false
 
-  def update_verbose: (Integer verbose) -> Integer
-                    | (Integer verbose) -> Integer
-  def self.update_verbose: (Integer verbose) -> Integer
-                         | (Integer verbose) -> Integer
-  def update_validate: (true validate) -> true
-                     | (true validate) -> true
-  def self.update_validate: (true validate) -> true
-                          | (true validate) -> true
-  def validation_enabled?: -> bool
-                         | -> bool
-  def self.validation_enabled?: -> bool
-                              | -> bool
+  def update_verbose: (untyped verbose) -> untyped
+                    | (untyped verbose) -> untyped
+  def self.update_verbose: (untyped verbose) -> untyped
+                         | (untyped verbose) -> untyped
+  def update_validate: (untyped validate) -> untyped
+                     | (untyped validate) -> untyped
+  def self.update_validate: (untyped validate) -> untyped
+                          | (untyped validate) -> untyped
+  def validation_enabled?: -> false
+                         | -> false
+  def self.validation_enabled?: -> false
+                              | -> false
   def vlog: (String? str) -> nil
           | (String? str) -> nil
   def self.vlog: (String? str) -> nil
@@ -259,6 +259,6 @@ class AppLauncher
   @config: {ipc: :stdio, loop: false, sockpath: nil, work_dir: String}
   @unix_server: UNIXServer
 
-  def initialize: -> ((Array[(OptionParser::Arguable | String)?] | OptionParser::Arguable | String)?)
+  def initialize: -> bot
   def main: -> bot
 end
