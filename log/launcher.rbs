@@ -1,64 +1,33 @@
-# TypeProf 0.14.1
+# TypeProf 0.15.1
 
 # Classes
-module Kernel
-  private
-  alias self.__raise__ self.raise
-end
-
 class Thread
-  def self.start2: ?{ -> nil } -> untyped
-  def self.start3: (Proc lam) -> untyped
-end
-
-class OptionParser
-  alias set_banner banner=
-  alias set_program_name program_name=
-  alias set_summary_width summary_width=
-  alias set_summary_indent summary_indent=
-  alias to_s help
-  alias def_option define
-  alias def_head_option define_head
-  alias def_tail_option define_tail
-
-  class ParseError < RuntimeError
-    alias to_s message
-  end
+  def self.start2: -> untyped
+  def self.start3: (untyped lam) -> untyped
 end
 
 module ALBase
   @@mutex_stderr: Thread::Mutex
   @@verbose: Integer
-  @@validate: false
+  @@validate: bool
   @@superuser: false
 
-  def update_verbose: (untyped verbose) -> untyped
-                    | (untyped verbose) -> untyped
-  def self.update_verbose: (untyped verbose) -> untyped
-                         | (untyped verbose) -> untyped
-  def update_validate: (untyped validate) -> untyped
-                     | (untyped validate) -> untyped
-  def self.update_validate: (untyped validate) -> untyped
-                          | (untyped validate) -> untyped
-  def validation_enabled?: -> false
-                         | -> false
-  def self.validation_enabled?: -> false
-                              | -> false
+  def update_verbose: (Integer verbose) -> Integer
+  def self.update_verbose: (Integer verbose) -> Integer
+  def update_validate: (true validate) -> true
+  def self.update_validate: (true validate) -> true
+  def validation_enabled?: -> bool
+  def self.validation_enabled?: -> bool
   def vlog: (String? str) -> nil
-          | (String? str) -> nil
   def self.vlog: (String? str) -> nil
-               | (String? str) -> nil
   def wlog: (String str) -> nil
-          | (String str) -> nil
   def self.wlog: (String str) -> nil
-               | (String str) -> nil
 end
 
 module ALTask
   include ALBase
 
   def report_failed: (ALReciever::Reporter reporter, String err) -> nil
-                   | (ALReciever::Reporter reporter, String err) -> nil
 end
 
 class ALSocket
@@ -66,12 +35,12 @@ class ALSocket
   @mutex_input: Thread::Mutex
   @mutex_output: Thread::Mutex
 
-  def initialize: (IO input, IO output) -> Thread::Mutex
-  attr_reader input: IO
-  attr_reader output: IO
+  def initialize: (IO | UNIXSocket input, IO | UNIXSocket output) -> void
+  attr_reader input: IO | UNIXSocket
+  attr_reader output: IO | UNIXSocket
   def gets: -> String?
   def puts: (String str) -> nil
-  def responce: ({id: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String}, success: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String}, files: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String}, continue: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String}, taskid: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String}, result: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String}, error: Array[bot] | String | bool | {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String}} data) -> nil
+  def responce: ({id: Array[bot] | String | bool | {exited: true, exitstatus: untyped, time: untyped, out: untyped, err: untyped, box: String}, success: Array[bot] | String | bool | {exited: true, exitstatus: untyped, time: untyped, out: untyped, err: untyped, box: String}, result: Array[bot] | String | bool | {exited: true, exitstatus: untyped, time: untyped, out: untyped, err: untyped, box: String}, files: Array[bot] | String | bool | {exited: true, exitstatus: untyped, time: untyped, out: untyped, err: untyped, box: String}, error: Array[bot] | String | bool | {exited: true, exitstatus: untyped, time: untyped, out: untyped, err: untyped, box: String}} data) -> nil
 end
 
 class ALLocalStorage < Hash[untyped, untyped]
@@ -80,31 +49,31 @@ end
 class ALLocalStorageManager
   @collection: Hash[String, nil]
 
-  def initialize: -> Hash[bot, bot]
+  def initialize: -> void
   def []: (String key) -> nil
   def size: -> Integer
 end
 
 class ALReciever
   include ALBase
-  @socket: ALSocket?
+  @socket: ALSocket
   @local_storage_manager: ALLocalStorageManager
 
-  def initialize: (ALSocket? launcher_socket) -> ALLocalStorageManager
+  def initialize: (ALSocket launcher_socket) -> void
   def handle: ?{ (nil, Reporter, nil) -> nil } -> nil
 
   class Reporter
     include ALBase
-    @socket: ALSocket?
+    @socket: ALSocket
     @id: untyped
 
-    def initialize: (ALSocket? socket, untyped id) -> untyped
-    def report: ({success: bool, files: Array[bot], continue: true, taskid: String, result: {exited: bool, exitstatus: Integer?, time: nil, out: untyped, err: untyped, box: String}, error: String} result) -> nil
+    def initialize: (ALSocket socket, untyped id) -> void
+    def report: ({success: bool, result: {exited: true, exitstatus: untyped, time: untyped, out: untyped, err: untyped, box: String}, files: Array[bot], error: String} result) -> nil
   end
 end
 
 class BoxDir
-  def initialize: (String dirname) -> String
+  def initialize: (String dirname) -> void
   attr_reader dirname: String
 end
 
@@ -112,7 +81,7 @@ class UserDir
   @key2box: Hash[String, BoxDir]
   @boxid_counter: Integer
 
-  def initialize: (String dirname) -> Integer
+  def initialize: (String dirname) -> void
   attr_reader dirname: String
   def new_dir: -> [String, String]
   def get_boxdir: (untyped key) -> String
@@ -124,7 +93,7 @@ class DirectoryManager
   @key2userdir: Hash[untyped, UserDir]
   @work_directory: String
 
-  def initialize: (String work_directory) -> String
+  def initialize: (String work_directory) -> void
 
   private
   def generate_userdirname: (untyped key) -> String
@@ -139,25 +108,20 @@ class DirectoryManager
   def box_exists?: (untyped user_key, untyped box_key) -> bool
 end
 
-class Tempfile
-  alias delete unlink
-  alias length size
-end
-
 class Executor
   @cmd: String
   @args: Array[bot]
   @timeout: Integer
   @chdir: String?
 
-  def initialize: (?cmd: String, ?args: Array[bot], ?stdin: untyped, ?stdout: untyped, ?stderr: untyped, ?timeout: Integer, ?chdir: String?) -> nil
+  def initialize: (?cmd: String, ?args: Array[bot], ?stdin: untyped, ?stdout: untyped, ?stderr: untyped, ?timeout: Integer, ?chdir: String?) -> void
   attr_writer stdin: untyped
   attr_writer stdout: untyped
   attr_writer stderr: untyped
   def reset: -> nil
-  def execute: (?bool noblock) ?{ (Process::Status?, nil) -> nil } -> [Integer?, Process::Status?, nil]
+  def execute: (?bool noblock) ?{ -> nil } -> bot
   def self.kill: (untyped pid) -> Integer
-  attr_reader status: Process::Status?
+  attr_reader status: nil
 end
 
 class ALTaskExec
@@ -168,7 +132,7 @@ class ALTaskExec
   @stdin: String
   @timeout: Integer
 
-  def initialize: (untyped box, untyped command, Array[bot] arguments, String stdin, Integer timeout) -> Integer
+  def initialize: (untyped box, untyped command, Array[bot] arguments, String stdin, Integer timeout) -> void
   def self.from_json: (nil param) -> ALTaskExec?
   def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
 end
@@ -183,7 +147,7 @@ class ALTaskExecFileIO
   @stderr_path: untyped
   @timeout: Integer
 
-  def initialize: (untyped box, untyped command, Array[bot] arguments, untyped stdin_path, untyped stdout_path, untyped stderr_path, Integer timeout) -> Integer
+  def initialize: (untyped box, untyped command, Array[bot] arguments, untyped stdin_path, untyped stdout_path, untyped stderr_path, Integer timeout) -> void
   def self.check_valid_filequery: (untyped path) -> untyped
   def self.from_json: (nil param) -> ALTaskExecFileIO?
   def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
@@ -193,7 +157,7 @@ class ALTaskKill
   include ALTask
   @exec_task_id: untyped
 
-  def initialize: (untyped exec_task_id) -> untyped
+  def initialize: (untyped exec_task_id) -> void
   def self.from_json: (nil param) -> ALTaskKill?
   def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager _directory_manager) -> nil
 end
@@ -203,12 +167,12 @@ class ALTaskStore
   @box: untyped
   @files: untyped
 
-  def initialize: (untyped box, untyped files) -> untyped
+  def initialize: (untyped box, untyped files) -> void
   def self.from_json: (nil param) -> ALTaskStore?
   def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
 
   class FileData
-    def initialize: (untyped path, untyped data) -> untyped
+    def initialize: (untyped path, untyped data) -> void
     attr_accessor path: untyped
     attr_accessor data: untyped
     def self.check_valid_filequery: (untyped path) -> untyped
@@ -221,12 +185,12 @@ class ALTaskPull
   @box: untyped
   @files: untyped
 
-  def initialize: (untyped box, untyped files) -> untyped
+  def initialize: (untyped box, untyped files) -> void
   def self.from_json: (nil param) -> ALTaskPull?
   def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
 
   class FileData
-    def initialize: (untyped path, String data) -> String
+    def initialize: (untyped path, String data) -> void
     attr_accessor path: untyped
     attr_accessor data: String
     def self.check_valid_filequery: (untyped path) -> untyped
@@ -245,7 +209,7 @@ class ALTaskCleanupBox
   include ALTask
   @box: untyped
 
-  def initialize: (untyped box) -> untyped
+  def initialize: (untyped box) -> void
   def self.from_json: (nil param) -> ALTaskCleanupBox?
   def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
 end
@@ -259,6 +223,6 @@ class AppLauncher
   @config: {ipc: :stdio, loop: false, sockpath: nil, work_dir: String}
   @unix_server: UNIXServer
 
-  def initialize: -> bot
+  def initialize: -> void
   def main: -> bot
 end
