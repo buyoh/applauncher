@@ -50,6 +50,11 @@ class ALTaskExec
 
     exec_chdir = directory_manager.get_boxdir(user_id, @box)
 
+    if exec_chdir.nil?
+      report_failed reporter, 'invalid arguments'
+      return nil
+    end
+
     in_r, in_w = IO.pipe
     out_r, out_w = IO.pipe
     err_r, err_w = IO.pipe

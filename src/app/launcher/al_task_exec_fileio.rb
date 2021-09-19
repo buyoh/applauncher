@@ -64,6 +64,11 @@ class ALTaskExecFileIO
 
     exec_chdir = directory_manager.get_boxdir(user_id, @box)
 
+    if exec_chdir.nil?
+      report_failed reporter, 'invalid arguments'
+      return nil
+    end
+
     if !@stdin_path.nil? && !File.exist?("#{exec_chdir}/#{@stdin_path}")
       report_failed reporter, 'invalid arguments'
       return nil

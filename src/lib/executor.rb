@@ -3,12 +3,6 @@
 # require 'stringio'
 
 class Thread
-  def self.start2(&lam)
-    # @type var s: untyped
-    s = self
-    s.start(&lam)
-  end
-
   def self.start3(lam)
     # @type var s: untyped
     s = self
@@ -72,20 +66,19 @@ class Executor
     time = nil
 
     # NOTE: Ruby does not have race like javascript Promise.race
-    # note: RBS 1.0.3 Thread type is wrong so that it's wrote unobvious code.
 
     # @type var t1: Thread?
     t1 = nil
     # @type var t2: Thread?
     t2 = nil
     # timeout thread
-    t1 = Thread.start2 do
+    t1 = Thread.start do
       sleep @timeout
       Process.kill :KILL, pid
       t2.exit if t2.is_a? Thread
     end
     # waitpid thread
-    t2 = Thread.start2 do
+    t2 = Thread.start do
       pid, s = Process.waitpid2(pid)
       time = Time.now.to_f - start_time
       @status = s

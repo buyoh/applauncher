@@ -5,7 +5,6 @@ end
 class Thread
   # wrote in src/lib/executor.rb
   # same as Thread.start for RBS workaround.
-  def self.start2: () {() -> untyped} -> Thread
   def self.start3: (Proc p) -> Thread
 end
 
