@@ -9,7 +9,7 @@ require 'optparse'
 require_relative 'app/launcher/al_base'
 require_relative 'app/launcher/al_task'
 require_relative 'app/launcher/al_socket'
-require_relative 'app/launcher/al_reciever'
+require_relative 'app/launcher/al_receiver'
 require_relative 'lib/directory_manager/directory_manager'
 
 require_relative 'app/launcher/al_task_factory'
@@ -83,9 +83,9 @@ class AppLauncher
       # obvious
       # @type var socke: untyped
       socke = socket
-      reciever = ALReciever.new(socke)
+      receiver = ALReceiver.new(socke)
 
-      reciever.handle do |json_line, reporter, local_storage|
+      receiver.handle do |json_line, reporter, local_storage|
         # NOTE: ノンブロッキングで書く必要がある。TaskStoreがかなり怪しいが
         # ノンブロッキングで書くか、thread + chdir禁止か。forkはメモリを簡単に共有出来ないのでNG
         task = ALTaskFactory.from_json json_line

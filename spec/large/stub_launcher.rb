@@ -4,7 +4,7 @@ require 'tmpdir'
 require_root 'app/launcher/al_base.rb'
 require_root 'app/launcher/al_task.rb'
 require_root 'app/launcher/al_socket.rb'
-require_root 'app/launcher/al_reciever.rb'
+require_root 'app/launcher/al_receiver.rb'
 require_root 'lib/directory_manager/directory_manager.rb'
 require_root 'app/launcher/al_task_factory.rb'
 
@@ -32,9 +32,9 @@ class StubLauncher
 
     Dir.mktmpdir do |tmpdir|
       directory_manager = DirectoryManager.new(tmpdir)
-      reciever = ALReciever.new(socket)
+      receiver = ALReceiver.new(socket)
 
-      reciever.handle do |json_line, reporter, local_storage|
+      receiver.handle do |json_line, reporter, local_storage|
         # NOTE: ノンブロッキングで書く必要がある。TaskStoreがかなり怪しいが
         # ノンブロッキングで書くか、thread + chdir禁止か。forkはメモリを簡単に共有出来ないのでNG
         task = ALTaskFactory.from_json json_line

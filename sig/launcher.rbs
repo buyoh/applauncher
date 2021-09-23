@@ -46,7 +46,7 @@ end
 module ALTask
   include ALBase
 
-  def report_failed: (ALReciever::Reporter reporter, String err) -> nil
+  def report_failed: (ALReceiver::Reporter reporter, String err) -> nil
 end
 
 class ALSocket
@@ -73,7 +73,7 @@ class ALLocalStorageManager
   def size: -> Integer
 end
 
-class ALReciever
+class ALReceiver
   include ALBase
   @socket: ALSocket
   @local_storage_manager: ALLocalStorageManager
@@ -130,7 +130,7 @@ end
 interface _ALTaskInterface[Self]
   # def self.from_json: (jhash param) -> Self?
 
-  def action: (ALReciever::Reporter reporter, ALLocalStorage local_storage, DirectoryManager directory_manager) -> nil
+  def action: (ALReceiver::Reporter reporter, ALLocalStorage local_storage, DirectoryManager directory_manager) -> nil
 end
 
 class ALTaskExec

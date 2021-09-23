@@ -26,7 +26,7 @@ end
 module ALTask
   include ALBase
 
-  def report_failed: (ALReciever::Reporter reporter, String err) -> nil
+  def report_failed: (ALReceiver::Reporter reporter, String err) -> nil
 end
 
 class ALSocket
@@ -53,7 +53,7 @@ class ALLocalStorageManager
   def size: -> Integer
 end
 
-class ALReciever
+class ALReceiver
   include ALBase
   @socket: ALSocket
   @local_storage_manager: ALLocalStorageManager
@@ -133,7 +133,7 @@ class ALTaskExec
 
   def initialize: (untyped box, untyped command, Array[untyped] arguments, String stdin, Integer timeout) -> void
   def self.from_json: (nil param) -> ALTaskExec?
-  def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
+  def action: (ALReceiver::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
 end
 
 class ALTaskExecFileIO
@@ -149,7 +149,7 @@ class ALTaskExecFileIO
   def initialize: (untyped box, untyped command, Array[untyped] arguments, untyped stdin_path, untyped stdout_path, untyped stderr_path, Integer timeout) -> void
   def self.check_valid_filequery: (untyped path) -> untyped
   def self.from_json: (nil param) -> ALTaskExecFileIO?
-  def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
+  def action: (ALReceiver::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
 end
 
 class ALTaskKill
@@ -158,7 +158,7 @@ class ALTaskKill
 
   def initialize: (untyped exec_task_id) -> void
   def self.from_json: (nil param) -> ALTaskKill?
-  def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager _directory_manager) -> nil
+  def action: (ALReceiver::Reporter reporter, nil local_storage, DirectoryManager _directory_manager) -> nil
 end
 
 class ALTaskStore
@@ -168,7 +168,7 @@ class ALTaskStore
 
   def initialize: (untyped box, untyped files) -> void
   def self.from_json: (nil param) -> ALTaskStore?
-  def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
+  def action: (ALReceiver::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
 
   class FileData
     def initialize: (untyped path, untyped data) -> void
@@ -186,7 +186,7 @@ class ALTaskPull
 
   def initialize: (untyped box, untyped files) -> void
   def self.from_json: (nil param) -> ALTaskPull?
-  def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
+  def action: (ALReceiver::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
 
   class FileData
     def initialize: (untyped path, String data) -> void
@@ -201,7 +201,7 @@ class ALTaskSetupBox
   include ALTask
 
   def self.from_json: (nil _param) -> ALTaskSetupBox
-  def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
+  def action: (ALReceiver::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
 end
 
 class ALTaskCleanupBox
@@ -210,7 +210,7 @@ class ALTaskCleanupBox
 
   def initialize: (untyped box) -> void
   def self.from_json: (nil param) -> ALTaskCleanupBox?
-  def action: (ALReciever::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
+  def action: (ALReceiver::Reporter reporter, nil local_storage, DirectoryManager directory_manager) -> nil
 end
 
 module ALTaskFactory

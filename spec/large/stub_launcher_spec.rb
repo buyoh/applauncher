@@ -145,7 +145,7 @@ RSpec.describe Executor do
       w.flush
     end
 
-    # reciever
+    # receiver
     t2 = Thread.start do
       r = launcher.reader
 

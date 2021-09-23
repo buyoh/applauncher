@@ -3,7 +3,7 @@
 require_relative 'al_base'
 require_relative 'al_local_storage_manager'
 
-class ALReciever
+class ALReceiver
   include ALBase
 
   def initialize(launcher_socket)
